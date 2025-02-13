@@ -1,0 +1,41 @@
+# Build output
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.vscode/
+*.vs/
+*.swp
+
+# Logs & debugging
+logs/
+*.log
+*.tlog/
+*.pdb
+
+# Dependency files
+node_modules/
+packages/
+wwwroot/lib/
+
+# Environment & config files
+appsettings.json
+appsettings.*.json
+
+# Secrets & credentials
+secrets.json
+
+# IDE & editor settings
+*.DS_Store
+*.ncb
+*.opendb
+*.VC.db
+
+# Resharper & Rider
+*.sln.DotSettings.user
+.idea/
+
+# Entity Framework migrations
+Migrations/
