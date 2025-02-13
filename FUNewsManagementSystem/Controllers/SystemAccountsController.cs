@@ -15,10 +15,16 @@ namespace FUNewsManagementSystem.Controllers
     public class SystemAccountsController : Controller
     {
         private readonly FunewsManagementContext _context;
+        private readonly IConfiguration _configuration;
 
         public SystemAccountsController(FunewsManagementContext context)
         {
             _context = context;
+        }
+
+        public SystemAccountsController(IConfiguration configuration)
+        {
+            _configuration = configuration;
         }
 
         // GET: SystemAccounts
@@ -165,39 +171,70 @@ namespace FUNewsManagementSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(string email, string password)
         {
-            // Check the database for a matching user
+            string adminEmail = _configuration.GetSection("AdminEmail").Value;
+            string adminPassword = _configuration.GetSection("AdminPassword").Value;
             var user = await _context.SystemAccounts
-                .FirstOrDefaultAsync(u => u.AccountEmail == email && u.AccountPassword == password);
-
+                .FirstOrDefaultAsync(u => u.AccountEmail == adminEmail && u.AccountPassword == adminPassword);
             if (user != null)
             {
-                string roleName = user.AccountRole == 1 ? "Staff" : "Lecturer";
-                // Create the user claims
-                var claims = new List<Claim>
+                {
+                    string roleName = "Admin";
+                    // Create the user claims
+                    var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Role, roleName)
+            };
+
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var authProperties = new AuthenticationProperties
+                    {
+                        IsPersistent = true
+                    };
+
+                    // Sign in the user
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
+
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+            else {
+                // Check the database for a matching user
+                user = await _context.SystemAccounts
+                   .FirstOrDefaultAsync(u => u.AccountEmail == email && u.AccountPassword == password);
+
+                if (user != null)
+                {
+                    string roleName = user.AccountRole == 1 ? "Staff" : "Lecturer";
+                    // Create the user claims
+                    var claims = new List<Claim>
             {
 
                 new Claim(ClaimTypes.Name, user.AccountName),
                 new Claim(ClaimTypes.Role, roleName )
             };
 
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                var authProperties = new AuthenticationProperties
-                {
-                    IsPersistent = true
-                };
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var authProperties = new AuthenticationProperties
+                    {
+                        IsPersistent = true
+                    };
 
-                // Sign in the user
-                await HttpContext.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(claimsIdentity),
-                    authProperties);
+                    // Sign in the user
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
 
-                return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Home");
+                }
+
+                // Invalid credentials, show error message
+                ViewBag.Error = "Invalid username or password";
+                return View();
             }
-
-            // Invalid credentials, show error message
-            ViewBag.Error = "Invalid username or password";
-            return View();
         }
 
         public async Task<IActionResult> Logout()
