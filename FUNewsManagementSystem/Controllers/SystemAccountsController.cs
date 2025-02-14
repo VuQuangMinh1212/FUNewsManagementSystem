@@ -9,6 +9,7 @@ using FUNewsManagementSystem.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
+using System.Diagnostics;
 
 namespace FUNewsManagementSystem.Controllers
 {
@@ -170,9 +171,8 @@ namespace FUNewsManagementSystem.Controllers
             {
                 string adminEmail = _configuration.GetSection("AdminEmail").Value;
                 string adminPassword = _configuration.GetSection("AdminPassword").Value;
-                var user = await _context.SystemAccounts
-                    .FirstOrDefaultAsync(u => u.AccountEmail == adminEmail && u.AccountPassword == adminPassword);
-                if (user != null)
+            Debug.WriteLine(adminEmail, adminPassword);
+            if(email == adminEmail && password == adminPassword)
                 {
                     {
                         string roleName = "Admin";
@@ -200,7 +200,7 @@ namespace FUNewsManagementSystem.Controllers
                 else
                 {
                     // Check the database for a matching user
-                    user = await _context.SystemAccounts
+                   var user = await _context.SystemAccounts
                        .FirstOrDefaultAsync(u => u.AccountEmail == email && u.AccountPassword == password);
 
                     if (user != null)
