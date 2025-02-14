@@ -179,6 +179,7 @@ namespace FUNewsManagementSystem.Controllers
                         // Create the user claims
                         var claims = new List<Claim>
             {
+                new Claim(ClaimTypes.Name, "Admin"),
                 new Claim(ClaimTypes.Role, roleName)
             };
 
@@ -193,7 +194,6 @@ namespace FUNewsManagementSystem.Controllers
                             CookieAuthenticationDefaults.AuthenticationScheme,
                             new ClaimsPrincipal(claimsIdentity),
                             authProperties);
-
                         return RedirectToAction("Index", "Home");
                     }
                 }
