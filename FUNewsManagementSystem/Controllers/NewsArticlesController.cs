@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FUNewsManagementSystem.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FUNewsManagementSystem.Controllers
 {
@@ -45,6 +46,7 @@ namespace FUNewsManagementSystem.Controllers
             return View(newsArticle);
         }
 
+        [Authorize(Roles = "Staff")]
         // GET: NewsArticles/Create
         public IActionResult Create()
         {
@@ -53,6 +55,7 @@ namespace FUNewsManagementSystem.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Staff")]
         // POST: NewsArticles/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -71,13 +74,14 @@ namespace FUNewsManagementSystem.Controllers
             return View(newsArticle);
         }
 
+        [Authorize(Roles = "Staff")]
         // GET: NewsArticles/Edit/5
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
             {
                 return NotFound();
-            }
+            }     
 
             var newsArticle = await _context.NewsArticles.FindAsync(id);
             if (newsArticle == null)
@@ -89,6 +93,7 @@ namespace FUNewsManagementSystem.Controllers
             return View(newsArticle);
         }
 
+        [Authorize(Roles = "Staff")]
         // POST: NewsArticles/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -126,6 +131,7 @@ namespace FUNewsManagementSystem.Controllers
             return View(newsArticle);
         }
 
+        [Authorize(Roles = "Staff")]
         // GET: NewsArticles/Delete/5
         public async Task<IActionResult> Delete(string id)
         {
@@ -146,6 +152,7 @@ namespace FUNewsManagementSystem.Controllers
             return View(newsArticle);
         }
 
+        [Authorize(Roles = "Staff")]
         // POST: NewsArticles/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

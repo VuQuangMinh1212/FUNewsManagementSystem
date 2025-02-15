@@ -15,7 +15,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/SystemAccounts/Login";
         options.LogoutPath = "/SystemAccounts/Logout";
-        options.AccessDeniedPath = "/SystemAccounts/AccessDenied";
+        options.AccessDeniedPath = "/Home/AccessDenied";
     });
 
 builder.Services.AddSession(options =>
@@ -40,8 +40,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
+
 app.UseSession();
 
 app.MapControllerRoute(

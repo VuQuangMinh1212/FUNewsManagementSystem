@@ -28,5 +28,11 @@ namespace FUNewsManagementSystem.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        public IActionResult AccessDenied()
+        {
+            ViewBag.ErrorMessage = "You do not have permission to access this page.";
+            return View();
+        }
     }
 }
