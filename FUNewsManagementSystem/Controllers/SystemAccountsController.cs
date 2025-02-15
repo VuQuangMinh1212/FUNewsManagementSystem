@@ -171,7 +171,6 @@ namespace FUNewsManagementSystem.Controllers
             {
                 string adminEmail = _configuration.GetSection("AdminEmail").Value;
                 string adminPassword = _configuration.GetSection("AdminPassword").Value;
-            Debug.WriteLine(adminEmail, adminPassword);
             if(email == adminEmail && password == adminPassword)
                 {
                     {
@@ -194,8 +193,8 @@ namespace FUNewsManagementSystem.Controllers
                             CookieAuthenticationDefaults.AuthenticationScheme,
                             new ClaimsPrincipal(claimsIdentity),
                             authProperties);
-                        return RedirectToAction("Index", "Home");
-                    }
+                    return RedirectToAction("Index", "Home");
+                }
                 }
                 else
                 {
