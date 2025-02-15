@@ -210,7 +210,8 @@ namespace FUNewsManagementSystem.Controllers
             {
 
                 new Claim(ClaimTypes.Name, user.AccountName),
-                new Claim(ClaimTypes.Role, roleName )
+                new Claim("AccountId", user.AccountId.ToString()),
+                new Claim(ClaimTypes.Role, roleName)
             };
 
                         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
