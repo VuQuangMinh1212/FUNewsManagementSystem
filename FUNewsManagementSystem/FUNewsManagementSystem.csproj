@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <Folder Include="Views\Lecture\" />
-    <Folder Include="Views\Staff\" />
   </ItemGroup>
 
 </Project>

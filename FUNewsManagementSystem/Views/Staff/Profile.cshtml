@@ -1,0 +1,108 @@
+﻿@{
+    ViewData["Title"] = "Hồ sơ cá nhân";
+}
+<style>
+    
+    .profile-section {
+        text-align: center;
+        padding: 30px;
+    }
+
+        .profile-section h1, .profile-section h2 {
+            color: #333;
+        }
+
+    
+    .profile-info {
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 10px;
+        display: inline-block;
+        text-align: left;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+        .profile-info img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: block;
+            margin: 0 auto 10px;
+            border: 3px solid #007bff;
+        }
+
+        .profile-info p {
+            font-size: 16px;
+            margin: 5px 0;
+        }
+
+        .profile-info button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            color: white;
+            background-color: #007bff;
+            cursor: pointer;
+        }
+
+            .profile-info button:hover {
+                background-color: #0056b3;
+            }
+
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+        table th, table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #0056b3;
+            color: white;
+        }
+
+        table tr:hover {
+            background-color: #f5f5f5;
+        }
+
+</style>
+
+<div class="profile-section">
+    <h1>Hồ sơ cá nhân</h1>
+
+    <div class="profile-info">
+        <img src="~/images/profile.jpg" alt="Avatar" />
+        <p><strong>Tên:</strong> Nguyễn Văn A</p>
+        <p><strong>Email:</strong> staff@example.com</p>
+        <button class="primary">Chỉnh sửa</button>
+    </div>
+
+    <h2>Lịch sử bài viết</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Tiêu đề</th>
+                <th>Ngày tạo</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Bài viết 1</td>
+                <td>2025-02-10</td>
+                <td>Đã duyệt</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
