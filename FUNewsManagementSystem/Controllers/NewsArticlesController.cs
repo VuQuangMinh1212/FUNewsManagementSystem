@@ -26,7 +26,7 @@ namespace FUNewsManagementSystem.Controllers
             var query = _context.NewsArticles.AsQueryable();
             if (User.IsInRole("Lecturer"))
             {
-                query = query.Where(n => n.NewsStatus == true); 
+                query = query.Where(n => n.NewsStatus == true);
             }
             var funewsManagementContext = query
        .Include(n => n.Category)
@@ -90,7 +90,7 @@ namespace FUNewsManagementSystem.Controllers
             if (id == null)
             {
                 return NotFound();
-            }     
+            }
 
             var newsArticle = await _context.NewsArticles.FindAsync(id);
             if (newsArticle == null)
@@ -204,6 +204,28 @@ namespace FUNewsManagementSystem.Controllers
         private bool NewsArticleExists(string id)
         {
             return _context.NewsArticles.Any(e => e.NewsArticleId == id);
+        }
+
+
+        [Authorize(Roles = "Staff")]
+        public async Task<IActionResult> History()
+        {
+            // Get logged-in user's ID
+            var userId = Convert.ToInt16(User.FindFirst("AccountId")?.Value);
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            // Retrieve news articles created by the logged-in staff
+            var staffNews = await _context.NewsArticles
+                .Include(n => n.Category)
+                .Where(n => n.CreatedById == userId)
+                .OrderByDescending(n => n.CreatedDate)
+                .ToListAsync();
+
+            return View(staffNews);
         }
     }
 }

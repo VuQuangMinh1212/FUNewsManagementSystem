@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<FUNewsManagementSystem.Models.Category>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Category List";
 }
 
 @if (TempData["ErrorMessage"] != null)
@@ -14,13 +14,21 @@
     <div class="alert alert-success">@TempData["SuccessMessage"]</div>
 }
 
-<h1>Category</h1>
+<h1>Category Management</h1>
+
+<!-- Search Bar -->
+<form method="get" class="mb-3 d-flex">
+    <input type="text" name="searchString" class="form-control me-2" placeholder="Search by category name..." value="@ViewData["CurrentFilter"]">
+    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Search</button>
+    <a asp-action="Index" class="btn btn-secondary ms-2"><i class="fas fa-sync-alt"></i> Reset</a>
+</form>
 
 <p>
-    <a asp-action="Create" class="btn btn-primary">Create New</a>
+    <a asp-action="Create" class="btn btn-success"><i class="fas fa-plus"></i> Create New</a>
 </p>
-<table class="table">
-    <thead>
+
+<table class="table table-bordered">
+    <thead class="table-dark">
         <tr>
             <th>@Html.DisplayNameFor(model => model.CategoryName)</th>
             <th>@Html.DisplayNameFor(model => model.CategoryDesciption)</th>
@@ -30,16 +38,23 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model) {
+        @foreach (var item in Model)
+        {
             <tr>
                 <td>@Html.DisplayFor(modelItem => item.CategoryName)</td>
                 <td>@Html.DisplayFor(modelItem => item.CategoryDesciption)</td>
-                <td>@Html.DisplayFor(modelItem => item.IsActive)</td>
-                <td>@Html.DisplayFor(modelItem => item.ParentCategory.CategoryId)</td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.CategoryId" class="btn btn-warning btn-sm">Edit</a>
-                    <a asp-action="Details" asp-route-id="@item.CategoryId" class="btn btn-info btn-sm">Details</a>
-                    <a asp-action="Delete" asp-route-id="@item.CategoryId" class="btn btn-danger btn-sm">Delete</a>
+                    <span class="badge @(item.IsActive == true ? "bg-success" : "bg-danger")">
+                        @(item.IsActive == true ? "Active" : "Inactive")
+                    </span>
+                </td>
+                <td>
+                    @(item.ParentCategory != null ? item.ParentCategory.CategoryName : "None")
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.CategoryId" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i> Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.CategoryId" class="btn btn-info btn-sm"><i class="fas fa-eye"></i> Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.CategoryId" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</a>
                 </td>
             </tr>
         }
