@@ -1,0 +1,28 @@
+﻿@model IEnumerable<Category>
+
+<table>
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.CategoryName)</th>
+            <th>@Html.DisplayNameFor(model => model.CategoryDesciption)</th>
+            <th>@Html.DisplayNameFor(model => model.IsActive)</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="categoryTable">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.CategoryName)</td>
+                <td>@Html.DisplayFor(modelItem => item.CategoryDesciption)</td>
+                <td>@Html.DisplayFor(modelItem => item.IsActive)</td>
+                <td>
+                    <button class="primary" onclick="openCategoryPopup()">Update</button>
+                    <button class="danger" onclick="confirmDelete()">Delete</button>
+                </td>
+            </tr>
+        }
+
+
+    </tbody>
+</table>
