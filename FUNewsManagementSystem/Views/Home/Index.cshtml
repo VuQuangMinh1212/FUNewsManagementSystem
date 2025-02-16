@@ -2,9 +2,22 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Welcome</p>
-    <a asp-controller="SystemAccounts" asp-action="Logout" class="btn btn-danger">Logout</a>
+<div class="text-center mt-5">
+    <h1 class="display-4 fw-bold text-primary">Welcome to FUNews Management System</h1>
+    <p class="lead text-muted">Manage news, categories, and tags efficiently.</p>
 
+    <div class="mt-4 d-flex justify-content-center">
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a asp-controller="SystemAccounts" asp-action="Logout" class="btn btn-outline-danger btn-lg px-4 py-2 mx-2 shadow-sm">
+                <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </a>
+        }
+        else
+        {
+            <a asp-controller="SystemAccounts" asp-action="Login" class="btn btn-outline-primary btn-lg px-4 py-2 mx-2 shadow-sm">
+                <i class="fas fa-sign-in-alt me-2"></i> Login
+            </a>
+        }
+    </div>
 </div>

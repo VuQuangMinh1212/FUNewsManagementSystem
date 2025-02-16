@@ -141,19 +141,40 @@ namespace FUNewsManagementSystem.Controllers
         }
 
         // POST: Categories/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(short id)
-        {
-            var category = await _context.Categories.FindAsync(id);
-            if (category != null)
-            {
-                _context.Categories.Remove(category);
-            }
+[HttpPost, ActionName("Delete")]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> DeleteConfirmed(short id)
+{
+    var category = await _context.Categories
+        .Include(c => c.NewsArticles) // Include related NewsArticles
+        .FirstOrDefaultAsync(c => c.CategoryId == id);
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+    if (category == null)
+    {
+        return NotFound();
+    }
+
+    // Check if the category has any associated NewsArticles
+    if (category.NewsArticles.Any())
+    {
+        TempData["ErrorMessage"] = "Cannot delete this category because it is linked to existing news articles.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    try
+    {
+        _context.Categories.Remove(category);
+        await _context.SaveChangesAsync();
+        TempData["SuccessMessage"] = "Category deleted successfully.";
+    }
+    catch (Exception ex)
+    {
+        TempData["ErrorMessage"] = "An error occurred while deleting the category.";
+    }
+
+    return RedirectToAction(nameof(Index));
+}
+
 
         private bool CategoryExists(short id)
         {
