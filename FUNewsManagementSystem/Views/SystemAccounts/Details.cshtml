@@ -1,45 +1,60 @@
 ﻿@model FUNewsManagementSystem.Models.SystemAccount
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Account Details";
 }
 
-<h1>Details</h1>
+<h1>Account Details</h1>
+<hr />
 
-<div>
-    <h4>SystemAccount</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AccountName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AccountName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AccountEmail)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AccountEmail)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AccountRole)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AccountRole)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AccountPassword)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AccountPassword)
-        </dd>
-    </dl>
+<div class="card shadow-lg p-4 mb-4 bg-white rounded">
+    <div class="card-body">
+        <h4 class="card-title text-primary">@Html.DisplayFor(model => model.AccountName)</h4>
+
+        <dl class="row">
+            <dt class="col-sm-3 font-weight-bold">@Html.DisplayNameFor(model => model.AccountEmail)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.AccountEmail)</dd>
+
+            <dt class="col-sm-3 font-weight-bold">@Html.DisplayNameFor(model => model.AccountRole)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.AccountRole)</dd>
+
+            <dt class="col-sm-3 font-weight-bold">@Html.DisplayNameFor(model => model.AccountPassword)</dt>
+            <dd class="col-sm-9">
+                <div class="input-group">
+                    <input id="passwordField" type="password" class="form-control" value="@Model.AccountPassword" readonly />
+                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
+                        <i id="eyeIcon" class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </dd>
+        </dl>
+    </div>
 </div>
-<div>
-    @if(User.IsInRole("Admin")){
-        <a asp-action="Index">Back to List</a>
+
+<div class="mt-3">
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
     }
-    <a asp-action="Edit" asp-route-id="@Model?.AccountId">Edit</a> 
-
+    <a asp-action="Edit" asp-route-id="@Model?.AccountId" class="btn btn-primary">Edit</a>
 </div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <script>
+        function togglePassword() {
+            var passwordField = document.getElementById("passwordField");
+            var eyeIcon = document.getElementById("eyeIcon");
+
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                eyeIcon.classList.remove("fa-eye");
+                eyeIcon.classList.add("fa-eye-slash");
+            } else {
+                passwordField.type = "password";
+                eyeIcon.classList.remove("fa-eye-slash");
+                eyeIcon.classList.add("fa-eye");
+            }
+        }
+    </script>
+}
