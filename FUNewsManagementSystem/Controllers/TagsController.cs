@@ -19,10 +19,19 @@ namespace FUNewsManagementSystem.Controllers
         }
 
         // GET: Tags
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-            return View(await _context.Tags.ToListAsync());
+            var tags = from t in _context.Tags select t;
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                tags = tags.Where(t => t.TagName.Contains(searchString));
+            }
+
+            ViewData["CurrentFilter"] = searchString;
+            return View(await tags.ToListAsync());
         }
+
 
         // GET: Tags/Details/5
         public async Task<IActionResult> Details(int? id)
