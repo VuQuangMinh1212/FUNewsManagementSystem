@@ -1,78 +1,62 @@
 ﻿@model FUNewsManagementSystem.Models.NewsArticle
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "News Article Details";
 }
 
-<h1>Details</h1>
+<h1 class="mb-3"><i class="fas fa-newspaper"></i> News Article Details</h1>
 
-<div>
-    <h4>NewsArticle</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NewsTitle)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NewsTitle)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Headline)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Headline)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NewsContent)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NewsContent)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NewsSource)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NewsSource)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NewsStatus)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NewsStatus)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdatedById)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UpdatedById)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ModifiedDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ModifiedDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Category)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Category.CategoryId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedBy)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedBy.AccountId)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.NewsArticleId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h4 class="card-title">Article Information</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.NewsTitle)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.NewsTitle)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Headline)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Headline)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.CreatedDate)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.CreatedDate)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.NewsContent)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.NewsContent)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.NewsSource)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.NewsSource)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.NewsStatus)</dt>
+            <dd class="col-sm-9">
+                <span class="badge @(Model.NewsStatus == true ? "bg-success" : "bg-danger")">
+                    @(Model.NewsStatus == true ? "Active" : "Inactive")
+                </span>
+            </dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.UpdatedById)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.UpdatedById)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.ModifiedDate)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.ModifiedDate)</dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Category)</dt>
+            <dd class="col-sm-9">
+                @(Model.Category != null ? Model.Category.CategoryName : "None")
+            </dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.CreatedBy)</dt>
+            <dd class="col-sm-9">
+                @(Model.CreatedBy != null ? Model.CreatedBy.AccountName : "Unknown")
+            </dd>
+        </dl>
+
+        <div class="d-flex gap-3 mt-4">
+            <a asp-action="Edit" asp-route-id="@Model?.NewsArticleId" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
 </div>
