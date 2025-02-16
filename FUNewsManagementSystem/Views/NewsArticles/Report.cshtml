@@ -1,0 +1,39 @@
+﻿@model IEnumerable<FUNewsManagementSystem.Models.NewsArticle>
+
+@{
+    ViewData["Title"] = "News Report";
+}
+
+<h2>News Report</h2>
+
+<form method="get">
+    <label>Start Date:</label>
+    <input type="date" name="startDate" value="@Context.Request.Query["startDate"]" />
+
+    <label>End Date:</label>
+    <input type="date" name="endDate" value="@Context.Request.Query["endDate"]" />
+
+    <button type="submit">Filter</button>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>News Title</th>
+            <th>Created Date</th>
+            <th>Category</th>
+            <th>Created By</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.NewsTitle</td>
+                <td>@item.CreatedDate</td>
+                <td>@item.Category?.CategoryName</td>
+                <td>@item.CreatedBy?.AccountName</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -168,6 +168,30 @@ namespace FUNewsManagementSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Report(DateTime? startDate, DateTime? endDate)
+        {
+            var query = _context.NewsArticles
+                .Include(n => n.Category)
+                .Include(n => n.CreatedBy)
+                .AsQueryable();
+
+            if (startDate.HasValue)
+            {
+                query = query.Where(n => n.CreatedDate >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(n => n.CreatedDate <= endDate.Value);
+            }
+
+            var reportData = await query.OrderByDescending(n => n.CreatedDate).ToListAsync();
+
+            return View(reportData);
+        }
+
+
         private bool NewsArticleExists(string id)
         {
             return _context.NewsArticles.Any(e => e.NewsArticleId == id);
