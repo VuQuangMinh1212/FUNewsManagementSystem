@@ -5,12 +5,12 @@
     string roleDisplay = Model.AccountRole == 1 ? "Staff" : Model.AccountRole == 2 ? "Lecturer" : "Unknown";
 }
 
-<h1 class="text-primary">Edit Account</h1>
+<h1 class="text-primary"><i class="fas fa-user-edit"></i> Edit Account</h1>
 <hr />
 
 <div class="row">
     <div class="col-md-6">
-        <form asp-action="Edit">
+        <form asp-action="Edit" onsubmit="return confirmEdit()">
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
             <!-- Hidden Fields to Keep AccountId and AccountRole -->
@@ -18,30 +18,30 @@
             <input type="hidden" asp-for="AccountRole" />
 
             <!-- Account Name -->
-            <div class="form-group mb-3">
+            <div class="mb-3">
                 <label asp-for="AccountName" class="form-label fw-bold"></label>
-                <input asp-for="AccountName" class="form-control" />
+                <input asp-for="AccountName" class="form-control" required />
                 <span asp-validation-for="AccountName" class="text-danger"></span>
             </div>
 
             <!-- Account Email -->
-            <div class="form-group mb-3">
+            <div class="mb-3">
                 <label asp-for="AccountEmail" class="form-label fw-bold"></label>
-                <input asp-for="AccountEmail" class="form-control" />
+                <input asp-for="AccountEmail" type="email" class="form-control" required />
                 <span asp-validation-for="AccountEmail" class="text-danger"></span>
             </div>
 
             <!-- Display Role as Read-Only -->
-            <div class="form-group mb-3">
+            <div class="mb-3">
                 <label class="form-label fw-bold">Role</label>
                 <input type="text" class="form-control bg-light" value="@roleDisplay" readonly />
             </div>
 
             <!-- Password Field with Toggle Visibility -->
-            <div class="form-group mb-3">
+            <div class="mb-3">
                 <label asp-for="AccountPassword" class="form-label fw-bold"></label>
                 <div class="input-group">
-                    <input asp-for="AccountPassword" type="password" class="form-control" id="passwordField" value="@Model.AccountPassword" />
+                    <input asp-for="AccountPassword" type="password" class="form-control" id="passwordField" value="@Model.AccountPassword" required />
                     <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
                         <i id="eyeIcon" class="fas fa-eye"></i>
                     </button>
@@ -50,17 +50,18 @@
             </div>
 
             <!-- Buttons -->
-            <div class="form-group mt-4">
-                <button type="submit" a asp-action="Details" asp-route-id="@Model.AccountId" class="btn btn-success">
-                    <i class="fas fa-user"></i> Save
+            <div class="d-flex gap-3 mt-4">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> Save
                 </button>
 
                 @if (User.IsInRole("Admin"))
                 {
-                    <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
                 }
             </div>
-
         </form>
     </div>
 </div>
@@ -82,5 +83,13 @@
                 eyeIcon.classList.add("fa-eye");
             }
         }
+
+        function confirmEdit() {
+            return confirm("Are you sure you want to save changes to this account?");
+        }
     </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
