@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FUNewsManagementSystem.Models;
 using Microsoft.AspNetCore.Authorization;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace FUNewsManagementSystem.Controllers
 {
@@ -22,7 +23,15 @@ namespace FUNewsManagementSystem.Controllers
         // GET: NewsArticles
         public async Task<IActionResult> Index()
         {
-            var funewsManagementContext = _context.NewsArticles.Include(n => n.Category).Include(n => n.CreatedBy);
+            var query = _context.NewsArticles.AsQueryable();
+            if (User.IsInRole("Lecturer"))
+            {
+                query = query.Where(n => n.NewsStatus == true); 
+            }
+            var funewsManagementContext = query
+       .Include(n => n.Category)
+       .Include(n => n.CreatedBy);
+
             return View(await funewsManagementContext.ToListAsync());
         }
 
