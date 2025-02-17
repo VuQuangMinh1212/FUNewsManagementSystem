@@ -1,6 +1,7 @@
-﻿using FUNewsManagementSystem.Models;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using FUNewsManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace FUNewsManagementSystem.Controllers
 {
@@ -34,6 +35,51 @@ namespace FUNewsManagementSystem.Controllers
             var categories = _context.Categories.AsEnumerable().ToList();
 
             return PartialView("_CategoryList", categories);
+        }
+
+        public IActionResult GetCategoryById(int id)
+        {
+            var category = _context.Categories.SingleOrDefault(cate => cate.CategoryId == id);
+
+            if (category == null)
+            {
+                return Json(new { success = false, message = "Category not found" });
+            }
+
+            return Json(category, new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.Preserve });
+        }
+
+        public IActionResult UpdateCategory([FromBody] Category category)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            _context.Categories.Update(category);
+            _context.SaveChanges();
+
+            var categories = _context.Categories.AsEnumerable().ToList();
+
+            return PartialView("_CategoryList", categories);
+        }
+
+        public IActionResult DeleteCategory(int id)
+        {
+            var haveNews = _context.NewsArticles.Any(article => article.CategoryId == id);
+            if (haveNews)
+            {
+                return Json(new { success = false, message = "Không thể xóa danh mục vì nó đang chứa bài viết!" });
+            }
+
+            var category = _context.Categories.SingleOrDefault(cate => cate.CategoryId == id);
+            if (category != null)
+            {
+                _context.Categories.Remove(category);
+                _context.SaveChanges();
+            }
+
+            return Json(new { success = true });
         }
 
         public IActionResult ManageNews()
