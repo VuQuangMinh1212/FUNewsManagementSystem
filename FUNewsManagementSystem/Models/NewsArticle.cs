@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace FUNewsManagementSystem.Models;
+﻿namespace FUNewsManagementSystem.Models;
 
 public partial class NewsArticle
 {
