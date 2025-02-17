@@ -78,6 +78,7 @@ namespace FUNewsManagementSystem.Controllers
             {
                 try
                 {
+                    systemAccount.AccountId = (short)(_context.SystemAccounts.Max(a => (int?)a.AccountId) + 1 ?? 1);
                     _context.Add(systemAccount);
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = "Account created successfully!";
