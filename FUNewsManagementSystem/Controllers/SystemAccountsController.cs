@@ -262,6 +262,14 @@ namespace FUNewsManagementSystem.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login");
         }
+
+        [HttpPost]
+        public IActionResult ClearClaims()
+        {
+            HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme).Wait();
+            return Ok();
+        }
+
     }
 }
 
