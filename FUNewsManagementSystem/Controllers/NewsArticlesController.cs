@@ -21,31 +21,30 @@ namespace FUNewsManagementSystem.Controllers
         }
 
         // GET: NewsArticles
-        public async Task<IActionResult> Index(short? categoryFilter)
+        public async Task<IActionResult> Index(string searchTitle, int? categoryFilter)
         {
             var query = _context.NewsArticles
                 .Include(n => n.Category)
                 .Include(n => n.CreatedBy)
                 .AsQueryable();
 
-            // Filter published articles if user is a Lecturer
-            if (User.IsInRole("Lecturer"))
+            if (!string.IsNullOrEmpty(searchTitle))
             {
-                query = query.Where(n => n.NewsStatus == true);
+                query = query.Where(n => n.NewsTitle.Contains(searchTitle));
             }
 
-            // Filter articles by category if a category filter is applied
             if (categoryFilter.HasValue)
             {
-                query = query.Where(n => n.CategoryId == categoryFilter.Value);
+                query = query.Where(n => n.CategoryId == categoryFilter);
             }
 
-            // Retrieve categories for dropdown in the view
+            ViewData["CurrentTitleFilter"] = searchTitle;
+            ViewData["CurrentCategoryFilter"] = categoryFilter;
             ViewBag.Categories = await _context.Categories.ToListAsync();
-            ViewData["CurrentFilter"] = categoryFilter?.ToString();
 
             return View(await query.ToListAsync());
         }
+
 
 
         // GET: NewsArticles/Details/5
