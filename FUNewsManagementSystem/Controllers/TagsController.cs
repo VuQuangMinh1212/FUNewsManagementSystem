@@ -61,6 +61,7 @@ namespace FUNewsManagementSystem.Controllers
         {
             if (ModelState.IsValid)
             {
+                tag.TagId = (short)(_context.Tags.Max(a => (int?)a.TagId) + 1 ?? 1);
                 _context.Add(tag);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
