@@ -81,9 +81,17 @@ namespace FUNewsManagementSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(newsArticle);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    _context.Add(newsArticle);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = "An error occurred while creating the account. Please try again.";
+                    ModelState.AddModelError("", ex.Message);
+                }
             }
             ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryId", newsArticle.CategoryId);
             ViewData["CreatedById"] = new SelectList(_context.SystemAccounts, "AccountId", "AccountId", newsArticle.CreatedById);

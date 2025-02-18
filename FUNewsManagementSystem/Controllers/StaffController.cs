@@ -28,13 +28,21 @@ namespace FUNewsManagementSystem.Controllers
                 return BadRequest();
             }
 
+            try
+            {
+                _context.Categories.Add(category);
+                _context.SaveChanges();
 
-            _context.Categories.Add(category);
-            _context.SaveChanges();
+                var categories = _context.Categories.AsEnumerable().ToList();
 
-            var categories = _context.Categories.AsEnumerable().ToList();
-
-            return PartialView("_CategoryList", categories);
+                return PartialView("_CategoryList", categories);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred while creating the account. Please try again.";
+                ModelState.AddModelError("", ex.Message);
+            }
+            return View();
         }
 
         public IActionResult GetCategoryById(int id)
