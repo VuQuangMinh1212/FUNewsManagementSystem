@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using FUNewsManagementSystem.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using FUNewsManagementSystem.Models;
-using Microsoft.AspNetCore.Authorization;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace FUNewsManagementSystem.Controllers
 {
@@ -21,19 +16,31 @@ namespace FUNewsManagementSystem.Controllers
         }
 
         // GET: NewsArticles
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchTitle, int? categoryFilter)
         {
-            var query = _context.NewsArticles.AsQueryable();
-            if (User.IsInRole("Lecturer"))
-            {
-                query = query.Where(n => n.NewsStatus == true); 
-            }
-            var funewsManagementContext = query
-       .Include(n => n.Category)
-       .Include(n => n.CreatedBy);
+            var query = _context.NewsArticles
+                .Include(n => n.Category)
+                .Include(n => n.CreatedBy)
+                .AsQueryable();
 
-            return View(await funewsManagementContext.ToListAsync());
+            if (!string.IsNullOrEmpty(searchTitle))
+            {
+                query = query.Where(n => n.NewsTitle.Contains(searchTitle));
+            }
+
+            if (categoryFilter.HasValue)
+            {
+                query = query.Where(n => n.CategoryId == categoryFilter);
+            }
+
+            ViewData["CurrentTitleFilter"] = searchTitle;
+            ViewData["CurrentCategoryFilter"] = categoryFilter;
+            ViewBag.Categories = await _context.Categories.ToListAsync();
+
+            return View(await query.ToListAsync());
         }
+
+
 
         // GET: NewsArticles/Details/5
         public async Task<IActionResult> Details(string id)
@@ -90,7 +97,7 @@ namespace FUNewsManagementSystem.Controllers
             if (id == null)
             {
                 return NotFound();
-            }     
+            }
 
             var newsArticle = await _context.NewsArticles.FindAsync(id);
             if (newsArticle == null)
@@ -204,6 +211,28 @@ namespace FUNewsManagementSystem.Controllers
         private bool NewsArticleExists(string id)
         {
             return _context.NewsArticles.Any(e => e.NewsArticleId == id);
+        }
+
+
+        [Authorize(Roles = "Staff")]
+        public async Task<IActionResult> History()
+        {
+            // Get logged-in user's ID
+            var userId = Convert.ToInt16(User.FindFirst("AccountId")?.Value);
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            // Retrieve news articles created by the logged-in staff
+            var staffNews = await _context.NewsArticles
+                .Include(n => n.Category)
+                .Where(n => n.CreatedById == userId)
+                .OrderByDescending(n => n.CreatedDate)
+                .ToListAsync();
+
+            return View(staffNews);
         }
     }
 }

@@ -1,45 +1,86 @@
 ﻿@model FUNewsManagementSystem.Models.SystemAccount
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Delete Account";
+    string roleDisplay = Model.AccountRole == 1 ? "Staff" : Model.AccountRole == 2 ? "Lecturer" : "Unknown";
 }
 
-<h1>Delete</h1>
+<div class="container mt-5">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-danger text-white">
+            <h3 class="text-center"><i class="fas fa-exclamation-triangle"></i> Confirm Account Deletion</h3>
+        </div>
+        <div class="card-body">
+            <h5 class="text-center text-danger fw-bold">Are you sure you want to delete this account?</h5>
+            <hr />
+            <dl class="row">
+                <dt class="col-sm-3 fw-bold">Account Name</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.AccountName)</dd>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>SystemAccount</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AccountName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AccountName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AccountEmail)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AccountEmail)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AccountRole)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AccountRole)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AccountPassword)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AccountPassword)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="AccountId" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+                <dt class="col-sm-3 fw-bold">Email</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.AccountEmail)</dd>
+
+                <dt class="col-sm-3 fw-bold">Role</dt>
+                <dd class="col-sm-9">@roleDisplay</dd>
+
+                <dt class="col-sm-3 fw-bold">Password</dt>
+                <dd class="col-sm-9">
+                    <input type="password" class="form-control" value="@Model.AccountPassword" id="passwordField" readonly />
+                    <button type="button" class="btn btn-outline-secondary mt-2" onclick="togglePassword()">
+                        <i id="eyeIcon" class="fas fa-eye"></i> Show Password
+                    </button>
+                </dd>
+            </dl>
+
+            <!-- Delete Button (Opens Confirmation Modal) -->
+            <div class="text-center mt-4">
+                <button type="button" class="btn btn-danger px-4" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+                <a asp-action="Index" class="btn btn-secondary px-4"><i class="fas fa-arrow-left"></i> Back to List</a>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- 🔹 Delete Confirmation Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="confirmDeleteModalLabel"><i class="fas fa-exclamation-triangle"></i> Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-center">Are you sure you want to delete this account? This action <strong>cannot be undone</strong>.</p>
+            </div>
+            <div class="modal-footer">
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="AccountId" />
+                    <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Yes, Delete</button>
+                </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <script>
+        function togglePassword() {
+            var passwordField = document.getElementById("passwordField");
+            var eyeIcon = document.getElementById("eyeIcon");
+
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                eyeIcon.classList.remove("fa-eye");
+                eyeIcon.classList.add("fa-eye-slash");
+            } else {
+                passwordField.type = "password";
+                eyeIcon.classList.remove("fa-eye-slash");
+                eyeIcon.classList.add("fa-eye");
+            }
+        }
+    </script>
+}

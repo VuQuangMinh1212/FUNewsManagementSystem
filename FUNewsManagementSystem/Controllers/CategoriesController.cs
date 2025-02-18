@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using FUNewsManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using FUNewsManagementSystem.Models;
 
 namespace FUNewsManagementSystem.Controllers
 {
@@ -19,10 +15,17 @@ namespace FUNewsManagementSystem.Controllers
         }
 
         // GET: Categories
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-            var funewsManagementContext = _context.Categories.Include(c => c.ParentCategory);
-            return View(await funewsManagementContext.ToListAsync());
+            var categories = _context.Categories.Include(c => c.ParentCategory).AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                categories = categories.Where(c => c.CategoryName.Contains(searchString));
+            }
+
+            ViewData["CurrentFilter"] = searchString;
+            return View(await categories.ToListAsync());
         }
 
         // GET: Categories/Details/5
@@ -145,15 +148,36 @@ namespace FUNewsManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(short id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            if (category != null)
+            var category = await _context.Categories
+                .Include(c => c.NewsArticles) // Include related NewsArticles
+                .FirstOrDefaultAsync(c => c.CategoryId == id);
+
+            if (category == null)
             {
-                _context.Categories.Remove(category);
+                return NotFound();
             }
 
-            await _context.SaveChangesAsync();
+            // Check if the category has any associated NewsArticles
+            if (category.NewsArticles.Any())
+            {
+                TempData["ErrorMessage"] = "Cannot delete this category because it is linked to existing news articles.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                _context.Categories.Remove(category);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Category deleted successfully.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred while deleting the category.";
+            }
+
             return RedirectToAction(nameof(Index));
         }
+
 
         private bool CategoryExists(short id)
         {
@@ -161,3 +185,4 @@ namespace FUNewsManagementSystem.Controllers
         }
     }
 }
+

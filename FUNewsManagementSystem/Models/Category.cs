@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace FUNewsManagementSystem.Models;
+﻿namespace FUNewsManagementSystem.Models;
 
 public partial class Category
 {
@@ -13,7 +10,7 @@ public partial class Category
 
     public short? ParentCategoryId { get; set; }
 
-    public bool? IsActive { get; set; }
+    public bool IsActive { get; set; } = true;
 
     public virtual ICollection<Category> InverseParentCategory { get; set; } = new List<Category>();
 

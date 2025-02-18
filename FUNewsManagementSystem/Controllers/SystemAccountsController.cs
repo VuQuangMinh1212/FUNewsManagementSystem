@@ -1,212 +1,228 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using FUNewsManagementSystem.Models;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using FUNewsManagementSystem.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using System.Diagnostics;
 
 namespace FUNewsManagementSystem.Controllers
 {
     public class SystemAccountsController : Controller
     {
-            private readonly FunewsManagementContext _context;
-            private readonly IConfiguration _configuration;
+        private readonly FunewsManagementContext _context;
+        private readonly IConfiguration _configuration;
 
-            public SystemAccountsController(FunewsManagementContext context, IConfiguration configuration)
+        public SystemAccountsController(FunewsManagementContext context, IConfiguration configuration)
+        {
+            _context = context;
+            _configuration = configuration;
+        }
+
+
+        // GET: SystemAccounts
+        public async Task<IActionResult> Index(string searchQuery)
+        {
+            var query = _context.SystemAccounts.AsQueryable();
+
+            // Filter by account name if search query is provided
+            if (!string.IsNullOrEmpty(searchQuery))
             {
-                _context = context;
-                _configuration = configuration;
+                query = query.Where(a => a.AccountName.Contains(searchQuery));
             }
 
+            // Pass search query back to the view for maintaining input value
+            ViewData["CurrentFilter"] = searchQuery;
 
-            // GET: SystemAccounts
-            public async Task<IActionResult> Index()
+            return View(await query.ToListAsync());
+        }
+
+
+        // GET: SystemAccounts/Details/5
+        public async Task<IActionResult> Details(short? id)
+        {
+            if (id == null)
             {
-                return View(await _context.SystemAccounts.ToListAsync());
+                return NotFound();
             }
 
-            // GET: SystemAccounts/Details/5
-            public async Task<IActionResult> Details(short? id)
+            var systemAccount = await _context.SystemAccounts
+                .FirstOrDefaultAsync(m => m.AccountId == id);
+            if (systemAccount == null)
             {
-                if (id == null)
+                return NotFound();
+            }
+
+            return View(systemAccount);
+        }
+
+        // GET: SystemAccounts/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: SystemAccounts/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("AccountId,AccountName,AccountEmail,AccountRole,AccountPassword")] SystemAccount systemAccount)
+        {
+            if (ModelState.IsValid)
+            {
+                try
                 {
-                    return NotFound();
-                }
-
-                var systemAccount = await _context.SystemAccounts
-                    .FirstOrDefaultAsync(m => m.AccountId == id);
-                if (systemAccount == null)
-                {
-                    return NotFound();
-                }
-
-                return View(systemAccount);
-            }
-
-            // GET: SystemAccounts/Create
-            public IActionResult Create()
-            {
-                return View();
-            }
-
-            // POST: SystemAccounts/Create
-            // To protect from overposting attacks, enable the specific properties you want to bind to.
-            // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-            [HttpPost]
-            [ValidateAntiForgeryToken]
-            public async Task<IActionResult> Create([Bind("AccountId,AccountName,AccountEmail,AccountRole,AccountPassword")] SystemAccount systemAccount)
-            {
-                if (ModelState.IsValid)
-                {
+                    systemAccount.AccountId = (short)(_context.SystemAccounts.Max(a => (int?)a.AccountId) + 1 ?? 1);
                     _context.Add(systemAccount);
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Account created successfully!";
                     return RedirectToAction(nameof(Index));
                 }
-                return View(systemAccount);
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = "An error occurred while creating the account. Please try again.";
+                    ModelState.AddModelError("", ex.Message);
+                }
+            }
+            return View(systemAccount);
+        }
+
+        // GET: SystemAccounts/Edit/5
+        public async Task<IActionResult> Edit(short? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
             }
 
-            // GET: SystemAccounts/Edit/5
-            public async Task<IActionResult> Edit(short? id)
+            var systemAccount = await _context.SystemAccounts.FindAsync(id);
+            if (systemAccount == null)
             {
-                if (id == null)
-                {
-                    return NotFound();
-                }
+                return NotFound();
+            }
+            return View(systemAccount);
+        }
 
-                var systemAccount = await _context.SystemAccounts.FindAsync(id);
-                if (systemAccount == null)
-                {
-                    return NotFound();
-                }
-                return View(systemAccount);
+        // POST: SystemAccounts/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(short id, [Bind("AccountId,AccountName,AccountEmail,AccountRole,AccountPassword")] SystemAccount systemAccount)
+        {
+            if (id != systemAccount.AccountId)
+            {
+                return NotFound();
             }
 
-            // POST: SystemAccounts/Edit/5
-            // To protect from overposting attacks, enable the specific properties you want to bind to.
-            // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-            [HttpPost]
-            [ValidateAntiForgeryToken]
-            public async Task<IActionResult> Edit(short id, [Bind("AccountId,AccountName,AccountEmail,AccountRole,AccountPassword")] SystemAccount systemAccount)
+            if (ModelState.IsValid)
             {
-                if (id != systemAccount.AccountId)
+                try
                 {
-                    return NotFound();
+                    _context.Update(systemAccount);
+                    await _context.SaveChangesAsync();
                 }
-
-                if (ModelState.IsValid)
+                catch (DbUpdateConcurrencyException)
                 {
-                    try
+                    if (!SystemAccountExists(systemAccount.AccountId))
                     {
-                        _context.Update(systemAccount);
-                        await _context.SaveChangesAsync();
+                        return NotFound();
                     }
-                    catch (DbUpdateConcurrencyException)
+                    else
                     {
-                        if (!SystemAccountExists(systemAccount.AccountId))
-                        {
-                            return NotFound();
-                        }
-                        else
-                        {
-                            throw;
-                        }
+                        throw;
                     }
-                    return RedirectToAction(nameof(Index));
                 }
-                return View(systemAccount);
-            }
-
-            // GET: SystemAccounts/Delete/5
-            public async Task<IActionResult> Delete(short? id)
-            {
-                if (id == null)
-                {
-                    return NotFound();
-                }
-
-                var systemAccount = await _context.SystemAccounts
-                    .FirstOrDefaultAsync(m => m.AccountId == id);
-                if (systemAccount == null)
-                {
-                    return NotFound();
-                }
-
-                return View(systemAccount);
-            }
-
-            // POST: SystemAccounts/Delete/5
-            [HttpPost, ActionName("Delete")]
-            [ValidateAntiForgeryToken]
-            public async Task<IActionResult> DeleteConfirmed(short id)
-            {
-                var systemAccount = await _context.SystemAccounts.FindAsync(id);
-                if (systemAccount != null)
-                {
-                    _context.SystemAccounts.Remove(systemAccount);
-                }
-
-                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            return View(systemAccount);
+        }
 
-            private bool SystemAccountExists(short id)
+        // GET: SystemAccounts/Delete/5
+        public async Task<IActionResult> Delete(short? id)
+        {
+            if (id == null)
             {
-                return _context.SystemAccounts.Any(e => e.AccountId == id);
+                return NotFound();
             }
 
-            [HttpGet]
-            public IActionResult Login()
+            var systemAccount = await _context.SystemAccounts
+                .FirstOrDefaultAsync(m => m.AccountId == id);
+            if (systemAccount == null)
             {
-                return View();
+                return NotFound();
             }
 
-            [HttpPost]
-            public async Task<IActionResult> Login(string email, string password)
+            return View(systemAccount);
+        }
+
+        // POST: SystemAccounts/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(short id)
+        {
+            var systemAccount = await _context.SystemAccounts.FindAsync(id);
+            if (systemAccount != null)
             {
-                string adminEmail = _configuration.GetSection("AdminEmail").Value;
-                string adminPassword = _configuration.GetSection("AdminPassword").Value;
-            if(email == adminEmail && password == adminPassword)
+                _context.SystemAccounts.Remove(systemAccount);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool SystemAccountExists(short id)
+        {
+            return _context.SystemAccounts.Any(e => e.AccountId == id);
+        }
+
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(string email, string password)
+        {
+            string adminEmail = _configuration.GetSection("AdminEmail").Value;
+            string adminPassword = _configuration.GetSection("AdminPassword").Value;
+            if (email == adminEmail && password == adminPassword)
+            {
                 {
-                    {
-                        string roleName = "Admin";
-                        // Create the user claims
-                        var claims = new List<Claim>
+                    string roleName = "Admin";
+                    // Create the user claims
+                    var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, "Admin"),
                 new Claim(ClaimTypes.Role, roleName)
             };
 
-                        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                        var authProperties = new AuthenticationProperties
-                        {
-                            IsPersistent = true
-                        };
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var authProperties = new AuthenticationProperties
+                    {
+                        IsPersistent = false
+                    };
 
-                        // Sign in the user
-                        await HttpContext.SignInAsync(
-                            CookieAuthenticationDefaults.AuthenticationScheme,
-                            new ClaimsPrincipal(claimsIdentity),
-                            authProperties);
+                    // Sign in the user
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
                     return RedirectToAction("Index", "Home");
                 }
-                }
-                else
-                {
-                    // Check the database for a matching user
-                   var user = await _context.SystemAccounts
-                       .FirstOrDefaultAsync(u => u.AccountEmail == email && u.AccountPassword == password);
+            }
+            else
+            {
+                // Check the database for a matching user
+                var user = await _context.SystemAccounts
+                    .FirstOrDefaultAsync(u => u.AccountEmail == email && u.AccountPassword == password);
 
-                    if (user != null)
-                    {
-                        string roleName = user.AccountRole == 1 ? "Staff" : "Lecturer";
-                        // Create the user claims
-                        var claims = new List<Claim>
+                if (user != null)
+                {
+                    string roleName = user.AccountRole == 1 ? "Staff" : "Lecturer";
+                    // Create the user claims
+                    var claims = new List<Claim>
             {
 
                 new Claim(ClaimTypes.Name, user.AccountName),
@@ -214,32 +230,41 @@ namespace FUNewsManagementSystem.Controllers
                 new Claim(ClaimTypes.Role, roleName)
             };
 
-                        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                        var authProperties = new AuthenticationProperties
-                        {
-                            IsPersistent = true
-                        };
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var authProperties = new AuthenticationProperties
+                    {
+                        IsPersistent = false
 
-                        // Sign in the user
-                        await HttpContext.SignInAsync(
-                            CookieAuthenticationDefaults.AuthenticationScheme,
-                            new ClaimsPrincipal(claimsIdentity),
-                            authProperties);
+                    };
 
-                        return RedirectToAction("Index", "Home");
-                    }
+                    // Sign in the user
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
 
-                    // Invalid credentials, show error message
-                    ViewBag.Error = "Invalid username or password";
-                    return View();
+                    return RedirectToAction("Index", "Home");
                 }
-            }
 
-            public async Task<IActionResult> Logout()
-            {
-                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                return RedirectToAction("Login");
+                // Invalid credentials, show error message
+                ViewBag.Error = "Invalid username or password";
+                return View();
             }
         }
+
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Login");
+        }
+
+        [HttpPost]
+        public IActionResult ClearClaims()
+        {
+            HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme).Wait();
+            return Ok();
+        }
+
     }
+}
 
