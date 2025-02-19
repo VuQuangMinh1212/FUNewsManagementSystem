@@ -1,0 +1,258 @@
+﻿@model IEnumerable<Category>
+@{
+    ViewData["Title"] = "Quản lý danh mục";
+}
+<style>
+    .category-management {
+        text-align: center;
+        padding: 30px;
+    }
+
+    .category-management h1 {
+        color: #333;
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+
+
+    .search-bar {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        max-width: 600px;
+        margin: 0 auto 20px;
+    }
+
+    .search-bar input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    .search-bar button {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        color: white;
+    }
+
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    table th,
+    table td {
+        padding: 12px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+    }
+
+    table th {
+        background-color: #0056b3;
+        color: white;
+    }
+
+    table tr:hover {
+        background-color: #f5f5f5;
+    }
+
+
+    .primary {
+        background-color: #007bff;
+        border: none;
+        border-radius: 5px;
+    }
+
+    .primary:hover {
+        background-color: #0056b3;
+    }
+
+    .danger {
+        background-color: #dc3545;
+        border: none;
+        border-radius: 5px;
+    }
+
+    .danger:hover {
+        background-color: #a71d2a;
+    }
+
+
+    .popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        z-index: 1000;
+        width: 400px;
+        text-align: center;
+    }
+
+    .popup-content {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .popup-content input,
+    .popup-content textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    .popup-content button {
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        color: white;
+    }
+
+    .popup-content .close {
+        background-color: #6c757d;
+    }
+
+    .popup-content .close:hover {
+        background-color: #5a6268;
+    }
+</style>
+
+<div class="category-management">
+    <h1>Manage Category</h1>
+
+    <div class="search-bar">
+        <input type="text" placeholder="Tìm kiếm danh mục..." id="searchCategory" />
+        <button class="primary" onclick="openCategoryPopup('create')">Create Category</button>
+    </div>
+
+    <div id="categoryListContainer">
+        <partial name="_CategoryList" model="Model" />
+    </div>
+</div>
+
+<!-- Popup Dialog -->
+<div id="categoryPopup" class="popup">
+    <div class="popup-content">
+        <h2 id="popupTitle"></h2>
+        <input type="text" id="categoryId" hidden value="0" />
+        <input type="text" id="categoryName" placeholder="Category name" />
+        <textarea id="categoryDesc" placeholder="Category description"></textarea>
+        <button class="primary" onclick="manageCategory()">Save</button>
+        <button class="close" onclick="closePopup()">Cancel</button>
+    </div>
+</div>
+
+<script>
+
+    let popupType = '';
+
+    function openCategoryPopup(type, id) {
+        popupType = type;
+        document.getElementById('categoryPopup').style.display = 'block';
+        if (type == 'create') {
+            document.getElementById('popupTitle').innerText = 'Create Category';
+            document.getElementById('categoryName').value = '';
+            document.getElementById('categoryDesc').value = '';
+        } else if (type == 'update') {
+            document.getElementById('popupTitle').innerText = 'Update Category';
+            getUpdateCategory(id);
+        }
+    }
+
+    function closePopup() {
+        document.getElementById('categoryPopup').style.display = 'none';
+    }
+
+    function manageCategory() {
+        let categoryId = document.getElementById("categoryId").value;
+        let categoryName = document.getElementById("categoryName").value;
+        let categoryDesc = document.getElementById("categoryDesc").value;
+        let categoryData = {
+            "CategoryId": categoryId,
+            "CategoryName": categoryName,
+            "CategoryDesciption": categoryDesc
+        }
+
+        console.log(popupType);
+
+        if (popupType == 'create') {
+            addCategory(categoryData);
+        } else if (popupType == 'update') {
+            updateCategory(categoryData);
+        }
+
+    }
+
+    function addCategory(categoryData) {
+        fetch('/Staff/AddCategory', {
+            method: 'POST',
+            headers: {
+                'Content-Type': "application/json"
+            },
+            body: JSON.stringify(categoryData)
+        }).then(response => response.text())
+            .then(html => {
+                document.getElementById("categoryListContainer").innerHTML = html;
+                closePopup();
+            }).catch(error => console.log(error));
+    }
+
+    function updateCategory(categoryData) {
+        fetch('/Staff/UpdateCategory', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': "application/json"
+            },
+            body: JSON.stringify(categoryData)
+        }).then(response => response.text())
+            .then(html => {
+                document.getElementById("categoryListContainer").innerHTML = html;
+                closePopup();
+            }).catch(error => console.log(error));
+    }
+
+    function getUpdateCategory(id) {
+        fetch('/Staff/GetCategoryById/' + id, {
+            method: 'GET'
+        }).then(response => response.json())
+            .then(data => {
+                document.getElementById("categoryId").value = data.CategoryId;
+                document.getElementById("categoryName").value = data.CategoryName;
+                document.getElementById("categoryDesc").value = data.CategoryDesciption;
+            }).catch(error => console.log(error));
+    }
+
+    function confirmDelete(id) {
+        if (confirm("Bạn có chắc chắn muốn xóa danh mục này không?")) {
+            fetch('/Staff/DeleteCategory/' + id, {
+                method: 'DELETE'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById("category_" + id).remove(); // Xóa dòng danh mục khỏi bảng
+                    } else {
+                        alert(data.message); // Hiển thị thông báo nếu có lỗi
+                    }
+                })
+                .catch(error => console.error("Lỗi:", error));
+        }
+    }
+</script>

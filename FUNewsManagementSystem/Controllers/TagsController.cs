@@ -61,10 +61,19 @@ namespace FUNewsManagementSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                tag.TagId = (short)(_context.Tags.Max(a => (int?)a.TagId) + 1 ?? 1);
-                _context.Add(tag);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    tag.TagId = (short)(_context.Tags.Max(a => (int?)a.TagId) + 1 ?? 1);
+                    _context.Add(tag);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Create tag successfully.";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = "An error occurred while creating the tag. Please try again.";
+                    ModelState.AddModelError("", ex.Message);
+                }
             }
             return View(tag);
         }
@@ -102,6 +111,7 @@ namespace FUNewsManagementSystem.Controllers
                 try
                 {
                     _context.Update(tag);
+                    TempData["SuccessMessage"] = "Edit tag successfully.";
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -112,6 +122,7 @@ namespace FUNewsManagementSystem.Controllers
                     }
                     else
                     {
+                        TempData["ErrorMessage"] = "An error occurred while editing the tag. Please try again.";
                         throw;
                     }
                 }
