@@ -66,12 +66,12 @@ namespace FUNewsManagementSystem.Controllers
                     tag.TagId = (short)(_context.Tags.Max(a => (int?)a.TagId) + 1 ?? 1);
                     _context.Add(tag);
                     await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = "Create tag successfully.";
-                    return RedirectToAction(nameof(Index));
+                    ViewData["SuccessMessage"] = "Create tag successfully.";
+                    return View(tag);
                 }
                 catch (Exception ex)
                 {
-                    TempData["ErrorMessage"] = "An error occurred while creating the tag. Please try again.";
+                    ViewData["ErrorMessage"] = "An error occurred while creating the tag. Please try again.";
                     ModelState.AddModelError("", ex.Message);
                 }
             }
@@ -111,7 +111,7 @@ namespace FUNewsManagementSystem.Controllers
                 try
                 {
                     _context.Update(tag);
-                    TempData["SuccessMessage"] = "Edit tag successfully.";
+                    ViewData["SuccessMessage"] = "Edit tag successfully.";
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -122,11 +122,11 @@ namespace FUNewsManagementSystem.Controllers
                     }
                     else
                     {
-                        TempData["ErrorMessage"] = "An error occurred while editing the tag. Please try again.";
+                        ViewData["ErrorMessage"] = "An error occurred while editing the tag. Please try again.";
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return View(tag);
             }
             return View(tag);
         }
@@ -154,14 +154,26 @@ namespace FUNewsManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var tag = await _context.Tags.FindAsync(id);
-            if (tag != null)
+            try
             {
+                var tag = await _context.Tags.FindAsync(id);
+                if (tag == null)
+                {
+                    ViewData["ErrorMessage"] = "Tag not found.";
+                    return View(tag);
+                }
+
                 _context.Tags.Remove(tag);
+                await _context.SaveChangesAsync();
+                ViewData["SuccessMessage"] = "Tag deleted successfully.";
+            }
+            catch (Exception ex)
+            {
+                ViewData["ErrorMessage"] = "An error occurred while deleting the tag. Please try again.";
+                ModelState.AddModelError("", ex.Message);
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return View();
         }
 
         private bool TagExists(int id)
