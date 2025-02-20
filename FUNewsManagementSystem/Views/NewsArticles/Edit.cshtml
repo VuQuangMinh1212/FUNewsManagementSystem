@@ -6,6 +6,26 @@
 
 <h1 class="mb-3"><i class="fas fa-edit"></i> Edit News Article</h1>
 
+@if (ViewData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle"></i> @ViewData["SuccessMessage"]
+    </div>
+
+    <script>
+        setTimeout(function () {
+            window.location.href = '@Url.Action("Index", "NewsArticles")';
+        }, 1000);
+    </script>
+}
+
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i> @ViewData["ErrorMessage"]
+    </div>
+}
+
 <div class="card shadow-sm">
     <div class="card-body">
         <h4 class="card-title">Update Article Information</h4>

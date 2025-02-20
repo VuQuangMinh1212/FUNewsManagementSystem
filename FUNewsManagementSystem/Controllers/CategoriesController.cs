@@ -67,12 +67,12 @@ namespace FUNewsManagementSystem.Controllers
                 {
                     _context.Add(category);
                     await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = "Create category successfully.";
-                    return RedirectToAction(nameof(Index));
+                    ViewData["SuccessMessage"] = "Create category successfully.";
+                    return View(category);
                 }
                 catch (Exception ex)
                 {
-                    TempData["ErrorMessage"] = "An error occurred while creating the category. Please try again.";
+                    ViewData["ErrorMessage"] = "An error occurred while creating the category. Please try again.";
                     ModelState.AddModelError("", ex.Message);
                 }
             }
@@ -114,7 +114,7 @@ namespace FUNewsManagementSystem.Controllers
                 try
                 {
                     _context.Update(category);
-                    TempData["SuccessMessage"] = "Update category successfully.";
+                    ViewData["SuccessMessage"] = "Update category successfully.";
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -125,11 +125,11 @@ namespace FUNewsManagementSystem.Controllers
                     }
                     else
                     {
-                        TempData["ErrorMessage"] = "An error occurred while editing the tag. Please try again.";
+                        ViewData["ErrorMessage"] = "An error occurred while editing the tag. Please try again.";
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return View(category);
             }
             ViewData["ParentCategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryId", category.ParentCategoryId);
             return View(category);
@@ -171,22 +171,22 @@ namespace FUNewsManagementSystem.Controllers
             // Check if the category has any associated NewsArticles
             if (category.NewsArticles.Any())
             {
-                TempData["ErrorMessage"] = "Cannot delete this category because it is linked to existing news articles.";
-                return RedirectToAction(nameof(Index));
+                ViewData["ErrorMessage"] = "Cannot delete this category because it is linked to existing news articles.";
+                return View(category);
             }
 
             try
             {
                 _context.Categories.Remove(category);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Category deleted successfully.";
+                ViewData["SuccessMessage"] = "Category deleted successfully.";
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "An error occurred while deleting the category.";
+                ViewData["ErrorMessage"] = "An error occurred while deleting the category.";
             }
 
-            return RedirectToAction(nameof(Index));
+            return View(category);
         }
 
 

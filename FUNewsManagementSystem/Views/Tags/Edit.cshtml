@@ -6,6 +6,25 @@
 
 <h1 class="text-primary"><i class="fas fa-edit"></i> Edit Tag</h1>
 <hr />
+@if (ViewData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle"></i> @ViewData["SuccessMessage"]
+    </div>
+
+    <script>
+        setTimeout(function () {
+            window.location.href = '@Url.Action("Index", "Tags")';
+        }, 1000);
+    </script>
+}
+
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i> @ViewData["ErrorMessage"]
+    </div>
+}
 
 <div class="card shadow-sm">
     <div class="card-body">

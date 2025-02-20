@@ -66,8 +66,8 @@ namespace FUNewsManagementSystem.Controllers
         // GET: NewsArticles/Create
         public IActionResult Create()
         {
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryId");
-            ViewData["CreatedById"] = new SelectList(_context.SystemAccounts, "AccountId", "AccountId");
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName");
+            ViewData["CreatedById"] = new SelectList(_context.SystemAccounts, "AccountId", "AccountName");
             return View();
         }
 
@@ -85,16 +85,17 @@ namespace FUNewsManagementSystem.Controllers
                 {
                     _context.Add(newsArticle);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    ViewData["SuccessMessage"] = "NewsArticle created successfully!";
+                    return View(newsArticle);
                 }
                 catch (Exception ex)
                 {
-                    TempData["ErrorMessage"] = "An error occurred while creating the account. Please try again.";
+                    ViewData["ErrorMessage"] = "An error occurred while creating the article. Please try again.";
                     ModelState.AddModelError("", ex.Message);
                 }
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryId", newsArticle.CategoryId);
-            ViewData["CreatedById"] = new SelectList(_context.SystemAccounts, "AccountId", "AccountId", newsArticle.CreatedById);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName", newsArticle.CategoryId);
+            ViewData["CreatedById"] = new SelectList(_context.SystemAccounts, "AccountId", "AccountName", newsArticle.CreatedById);
             return View(newsArticle);
         }
 
@@ -112,8 +113,8 @@ namespace FUNewsManagementSystem.Controllers
             {
                 return NotFound();
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryId", newsArticle.CategoryId);
-            ViewData["CreatedById"] = new SelectList(_context.SystemAccounts, "AccountId", "AccountId", newsArticle.CreatedById);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName", newsArticle.CategoryId);
+            ViewData["CreatedById"] = new SelectList(_context.SystemAccounts, "AccountId", "AccountName", newsArticle.CreatedById);
             return View(newsArticle);
         }
 
@@ -127,7 +128,8 @@ namespace FUNewsManagementSystem.Controllers
         {
             if (id != newsArticle.NewsArticleId)
             {
-                return NotFound();
+                ViewData["ErrorMessage"] = "Invalid article ID.";
+                return View(newsArticle);
             }
 
             if (ModelState.IsValid)
@@ -136,22 +138,27 @@ namespace FUNewsManagementSystem.Controllers
                 {
                     _context.Update(newsArticle);
                     await _context.SaveChangesAsync();
+                    ViewData["SuccessMessage"] = "NewsArticle updated successfully!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!NewsArticleExists(newsArticle.NewsArticleId))
                     {
-                        return NotFound();
+                        ViewData["ErrorMessage"] = "Article not found.";
+                        return View(newsArticle);
                     }
                     else
                     {
-                        throw;
+                        ViewData["ErrorMessage"] = "An error occurred while updating the article.";
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryId", newsArticle.CategoryId);
-            ViewData["CreatedById"] = new SelectList(_context.SystemAccounts, "AccountId", "AccountId", newsArticle.CreatedById);
+            else
+            {
+                ViewData["ErrorMessage"] = "Update failed. Please check the input.";
+            }
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryName", newsArticle.CategoryId);
+            ViewData["CreatedById"] = new SelectList(_context.SystemAccounts, "AccountId", "AccountName", newsArticle.CreatedById);
             return View(newsArticle);
         }
 
@@ -183,13 +190,25 @@ namespace FUNewsManagementSystem.Controllers
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
             var newsArticle = await _context.NewsArticles.FindAsync(id);
-            if (newsArticle != null)
+            if (newsArticle == null)
             {
-                _context.NewsArticles.Remove(newsArticle);
+                ViewData["ErrorMessage"] = "News article not found.";
+                return View("Delete"); // Giữ nguyên trang Delete
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                _context.NewsArticles.Remove(newsArticle);
+                await _context.SaveChangesAsync();
+
+                ViewData["SuccessMessage"] = "News article deleted successfully!";
+            }
+            catch (Exception ex)
+            {
+                ViewData["ErrorMessage"] = "An error occurred while deleting the article. Please try again.";
+            }
+
+            return View("Delete", newsArticle);
         }
 
         [Authorize(Roles = "Admin")]

@@ -14,6 +14,27 @@
 <h1>Create News Article</h1>
 <hr />
 
+@if (ViewData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle"></i> @ViewData["SuccessMessage"]
+    </div>
+
+    <script>
+        setTimeout(function () {
+            window.location.href = '@Url.Action("Index", "NewsArticles")';
+        }, 1000);
+    </script>
+}
+
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i> @ViewData["ErrorMessage"]
+    </div>
+}
+
+
 <div class="row">
     <div class="col-md-6">
         <form asp-action="Create" onsubmit="return confirmSubmit()">
