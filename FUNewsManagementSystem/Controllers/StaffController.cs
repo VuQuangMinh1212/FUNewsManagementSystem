@@ -1,27 +1,31 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using FUNewsManagementSystem.Models;
+using FUNewsManagementSystem.BLL.Interfaces;
+using FUNewsManagementSystem.DAL.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace FUNewsManagementSystem.Controllers
 {
     public class StaffController : Controller
     {
-        private readonly FunewsManagementContext _context;
+        private readonly ICategoryService _categoryService;
+        private readonly INewsArticleService _newsArticleService;
 
-        public StaffController(FunewsManagementContext context)
+        public StaffController(ICategoryService categoryService, INewsArticleService newsArticleService)
         {
-            _context = context;
+            _categoryService = categoryService;
+            _newsArticleService = newsArticleService;
         }
 
-        public IActionResult ManageCategories()
+        public async Task<IActionResult> ManageCategories()
         {
-            List<Category> categories = new List<Category>();
-            categories = _context.Categories.AsEnumerable().ToList();
+            var categories = await _categoryService.GetAllCategoriesAsync();
             return View(categories);
         }
 
-        public IActionResult AddCategory([FromBody] Category category)
+        [HttpPost]
+        public async Task<IActionResult> AddCategory([FromBody] Category category)
         {
             if (!ModelState.IsValid)
             {
@@ -30,24 +34,22 @@ namespace FUNewsManagementSystem.Controllers
 
             try
             {
-                _context.Categories.Add(category);
-                _context.SaveChanges();
-
-                var categories = _context.Categories.AsEnumerable().ToList();
+                await _categoryService.AddCategoryAsync(category);
+                var categories = await _categoryService.GetAllCategoriesAsync();
 
                 return PartialView("_CategoryList", categories);
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "An error occurred while creating the account. Please try again.";
+                TempData["ErrorMessage"] = "An error occurred while creating the category. Please try again.";
                 ModelState.AddModelError("", ex.Message);
             }
             return View();
         }
 
-        public IActionResult GetCategoryById(int id)
+        public async Task<IActionResult> GetCategoryById(short id)
         {
-            var category = _context.Categories.SingleOrDefault(cate => cate.CategoryId == id);
+            var category = await _categoryService.GetCategoryByIdAsync(id);
 
             if (category == null)
             {
@@ -57,36 +59,30 @@ namespace FUNewsManagementSystem.Controllers
             return Json(category, new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.Preserve });
         }
 
-        public IActionResult UpdateCategory([FromBody] Category category)
+        [HttpPost]
+        public async Task<IActionResult> UpdateCategory([FromBody] Category category)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
-            _context.Categories.Update(category);
-            _context.SaveChanges();
-
-            var categories = _context.Categories.AsEnumerable().ToList();
+            await _categoryService.UpdateCategoryAsync(category);
+            var categories = await _categoryService.GetAllCategoriesAsync();
 
             return PartialView("_CategoryList", categories);
         }
 
-        public IActionResult DeleteCategory(int id)
+        [HttpPost]
+        public async Task<IActionResult> DeleteCategory(short id)
         {
-            var haveNews = _context.NewsArticles.Any(article => article.CategoryId == id);
+            var haveNews = await _newsArticleService.HasNewsInCategoryAsync(id);
             if (haveNews)
             {
                 return Json(new { success = false, message = "Không thể xóa danh mục vì nó đang chứa bài viết!" });
             }
 
-            var category = _context.Categories.SingleOrDefault(cate => cate.CategoryId == id);
-            if (category != null)
-            {
-                _context.Categories.Remove(category);
-                _context.SaveChanges();
-            }
-
+            await _categoryService.DeleteCategoryAsync(id);
             return Json(new { success = true });
         }
 
@@ -94,6 +90,7 @@ namespace FUNewsManagementSystem.Controllers
         {
             return View();
         }
+
         public IActionResult Profile()
         {
             return View();

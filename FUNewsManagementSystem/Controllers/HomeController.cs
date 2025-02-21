@@ -1,4 +1,4 @@
-using FUNewsManagementSystem.Models;
+using FUNewsManagementSystem.DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 

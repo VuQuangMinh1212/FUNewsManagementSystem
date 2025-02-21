@@ -18,4 +18,9 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FUNewsManagementSystem.BLL\FUNewsManagementSystem.BLL.csproj" />
+    <ProjectReference Include="..\FUNewsManagementSystem.DAL\FUNewsManagementSystem.DAL.csproj" />
+  </ItemGroup>
+
 </Project>

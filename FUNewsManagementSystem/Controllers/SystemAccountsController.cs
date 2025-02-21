@@ -1,255 +1,126 @@
-﻿using FUNewsManagementSystem.Models;
+﻿using FUNewsManagementSystem.BLL.Interfaces;
+using FUNewsManagementSystem.DAL.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System.Security.Claims;
 
 namespace FUNewsManagementSystem.Controllers
 {
     public class SystemAccountsController : Controller
     {
-        private readonly FunewsManagementContext _context;
+        private readonly ISystemAccountService _accountService;
         private readonly IConfiguration _configuration;
 
-        public SystemAccountsController(FunewsManagementContext context, IConfiguration configuration)
+        public SystemAccountsController(ISystemAccountService accountService, IConfiguration configuration)
         {
-            _context = context;
+            _accountService = accountService;
             _configuration = configuration;
         }
 
-
-        // GET: SystemAccounts
         public async Task<IActionResult> Index(string searchQuery)
         {
-            var query = _context.SystemAccounts.AsQueryable();
-
-            // Filter by account name if search query is provided
+            var accounts = await _accountService.GetAllAccountsAsync();
             if (!string.IsNullOrEmpty(searchQuery))
             {
-                query = query.Where(a => a.AccountName.Contains(searchQuery));
+                accounts = accounts.Where(a => a.AccountName.Contains(searchQuery));
             }
-
-            // Pass search query back to the view for maintaining input value
             ViewData["CurrentFilter"] = searchQuery;
-
-            return View(await query.ToListAsync());
+            return View(accounts);
         }
 
-
-        // GET: SystemAccounts/Details/5
         public async Task<IActionResult> Details(short? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var systemAccount = await _context.SystemAccounts
-                .FirstOrDefaultAsync(m => m.AccountId == id);
-            if (systemAccount == null)
-            {
-                return NotFound();
-            }
-
-            return View(systemAccount);
+            if (id == null) return NotFound();
+            var account = await _accountService.GetAccountByIdAsync(id.Value);
+            return account == null ? NotFound() : View(account);
         }
 
-        // GET: SystemAccounts/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
+        public IActionResult Create() => View();
 
-        // POST: SystemAccounts/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("AccountId,AccountName,AccountEmail,AccountRole,AccountPassword")] SystemAccount systemAccount)
+        public async Task<IActionResult> Create(SystemAccount account)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(account);
+            try
             {
-                try
-                {
-                    systemAccount.AccountId = (short)(_context.SystemAccounts.Max(a => (int?)a.AccountId) + 1 ?? 1);
-                    _context.Add(systemAccount);
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = "Account created successfully!";
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (Exception ex)
-                {
-                    TempData["ErrorMessage"] = "An error occurred while creating the account. Please try again.";
-                    ModelState.AddModelError("", ex.Message);
-                }
-            }
-            return View(systemAccount);
-        }
-
-        // GET: SystemAccounts/Edit/5
-        public async Task<IActionResult> Edit(short? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var systemAccount = await _context.SystemAccounts.FindAsync(id);
-            if (systemAccount == null)
-            {
-                return NotFound();
-            }
-            return View(systemAccount);
-        }
-
-        // POST: SystemAccounts/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(short id, [Bind("AccountId,AccountName,AccountEmail,AccountRole,AccountPassword")] SystemAccount systemAccount)
-        {
-            if (id != systemAccount.AccountId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(systemAccount);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!SystemAccountExists(systemAccount.AccountId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await _accountService.AddAccountAsync(account);
+                TempData["SuccessMessage"] = "Account created successfully!";
                 return RedirectToAction(nameof(Index));
             }
-            return View(systemAccount);
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred while creating the account.";
+                ModelState.AddModelError("", ex.Message);
+            }
+            return View(account);
         }
 
-        // GET: SystemAccounts/Delete/5
+        public async Task<IActionResult> Edit(short? id)
+        {
+            if (id == null) return NotFound();
+            var account = await _accountService.GetAccountByIdAsync(id.Value);
+            return account == null ? NotFound() : View(account);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(short id, SystemAccount account)
+        {
+            if (id != account.AccountId) return NotFound();
+            if (!ModelState.IsValid) return View(account);
+            try
+            {
+                await _accountService.UpdateAccountAsync(account);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+            }
+            return View(account);
+        }
+
         public async Task<IActionResult> Delete(short? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var systemAccount = await _context.SystemAccounts
-                .FirstOrDefaultAsync(m => m.AccountId == id);
-            if (systemAccount == null)
-            {
-                return NotFound();
-            }
-
-            return View(systemAccount);
+            if (id == null) return NotFound();
+            var account = await _accountService.GetAccountByIdAsync(id.Value);
+            return account == null ? NotFound() : View(account);
         }
 
-        // POST: SystemAccounts/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(short id)
         {
-            var systemAccount = await _context.SystemAccounts.FindAsync(id);
-            if (systemAccount != null)
-            {
-                _context.SystemAccounts.Remove(systemAccount);
-            }
-
-            await _context.SaveChangesAsync();
+            await _accountService.DeleteAccountAsync(id);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool SystemAccountExists(short id)
-        {
-            return _context.SystemAccounts.Any(e => e.AccountId == id);
-        }
-
         [HttpGet]
-        public IActionResult Login()
-        {
-            return View();
-        }
+        public IActionResult Login() => View();
 
         [HttpPost]
         public async Task<IActionResult> Login(string email, string password)
         {
-            string adminEmail = _configuration.GetSection("AdminEmail").Value;
-            string adminPassword = _configuration.GetSection("AdminPassword").Value;
+            var adminEmail = _configuration["AdminEmail"];
+            var adminPassword = _configuration["AdminPassword"];
             if (email == adminEmail && password == adminPassword)
             {
-                {
-                    string roleName = "Admin";
-                    // Create the user claims
-                    var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, "Admin"),
-                new Claim(ClaimTypes.Role, roleName)
-            };
-
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    var authProperties = new AuthenticationProperties
-                    {
-                        IsPersistent = false
-                    };
-
-                    // Sign in the user
-                    await HttpContext.SignInAsync(
-                        CookieAuthenticationDefaults.AuthenticationScheme,
-                        new ClaimsPrincipal(claimsIdentity),
-                        authProperties);
-                    return RedirectToAction("Index", "Home");
-                }
+                return await SignInUser("Admin", "Admin");
             }
-            else
+
+            var user = (await _accountService.GetAllAccountsAsync())
+                .FirstOrDefault(u => u.AccountEmail == email && u.AccountPassword == password);
+
+            if (user != null)
             {
-                // Check the database for a matching user
-                var user = await _context.SystemAccounts
-                    .FirstOrDefaultAsync(u => u.AccountEmail == email && u.AccountPassword == password);
-
-                if (user != null)
-                {
-                    string roleName = user.AccountRole == 1 ? "Staff" : "Lecturer";
-                    // Create the user claims
-                    var claims = new List<Claim>
-            {
-
-                new Claim(ClaimTypes.Name, user.AccountName),
-                new Claim("AccountId", user.AccountId.ToString()),
-                new Claim(ClaimTypes.Role, roleName)
-            };
-
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    var authProperties = new AuthenticationProperties
-                    {
-                        IsPersistent = false
-
-                    };
-
-                    // Sign in the user
-                    await HttpContext.SignInAsync(
-                        CookieAuthenticationDefaults.AuthenticationScheme,
-                        new ClaimsPrincipal(claimsIdentity),
-                        authProperties);
-
-                    return RedirectToAction("Index", "Home");
-                }
-
-                // Invalid credentials, show error message
-                ViewBag.Error = "Invalid username or password";
-                return View();
+                var roleName = user.AccountRole == 1 ? "Staff" : "Lecturer";
+                return await SignInUser(user.AccountName, roleName, user.AccountId);
             }
+            ViewBag.Error = "Invalid username or password";
+            return View();
         }
 
         public async Task<IActionResult> Logout()
@@ -265,6 +136,22 @@ namespace FUNewsManagementSystem.Controllers
             return Ok();
         }
 
+        private async Task<IActionResult> SignInUser(string userName, string role, short? accountId = null)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, userName),
+                new Claim(ClaimTypes.Role, role)
+            };
+            if (accountId.HasValue)
+            {
+                claims.Add(new Claim("AccountId", accountId.Value.ToString()));
+            }
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties { IsPersistent = false });
+            return RedirectToAction("Index", "Home");
+        }
     }
 }
-

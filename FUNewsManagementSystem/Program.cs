@@ -1,4 +1,8 @@
-using FUNewsManagementSystem.Models;
+using FUNewsManagementSystem.BLL.Interfaces;
+using FUNewsManagementSystem.BLL.Services;
+using FUNewsManagementSystem.DAL.Interfaces;
+using FUNewsManagementSystem.DAL.Models;
+using FUNewsManagementSystem.DAL.Repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,6 +10,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<FunewsManagementContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+builder.Services.AddScoped<ISystemAccountRepository, SystemAccountRepository>();
+builder.Services.AddScoped<ISystemAccountService, SystemAccountService>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<INewsArticleRepository, NewsArticleRepository>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<INewsArticleService, NewsArticleService>();
+builder.Services.AddScoped<ITagRepository, TagRepository>();
+builder.Services.AddScoped<ITagService, TagService>();
+
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

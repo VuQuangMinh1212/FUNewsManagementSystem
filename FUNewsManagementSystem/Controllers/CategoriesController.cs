@@ -1,82 +1,60 @@
-﻿using FUNewsManagementSystem.Models;
+﻿using FUNewsManagementSystem.BLL.Interfaces;
+using FUNewsManagementSystem.DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 
 namespace FUNewsManagementSystem.Controllers
 {
     public class CategoriesController : Controller
     {
-        private readonly FunewsManagementContext _context;
+        private readonly ICategoryService _categoryService;
 
-        public CategoriesController(FunewsManagementContext context)
+        public CategoriesController(ICategoryService categoryService)
         {
-            _context = context;
+            _categoryService = categoryService;
         }
 
         // GET: Categories
-        public async Task<IActionResult> Index(string searchString)
+        public async Task<IActionResult> Index()
         {
-            var categories = _context.Categories.Include(c => c.ParentCategory).AsQueryable();
-
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                categories = categories.Where(c => c.CategoryName.Contains(searchString));
-            }
-
-            ViewData["CurrentFilter"] = searchString;
-            return View(await categories.ToListAsync());
+            var categories = await _categoryService.GetAllCategoriesAsync();
+            return View(categories);
         }
 
         // GET: Categories/Details/5
         public async Task<IActionResult> Details(short? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var category = await _context.Categories
-                .Include(c => c.ParentCategory)
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
+            var category = await _categoryService.GetCategoryByIdAsync(id.Value);
             if (category == null)
-            {
                 return NotFound();
-            }
 
             return View(category);
         }
 
         // GET: Categories/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["ParentCategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryId");
+            ViewData["ParentCategoryId"] = new SelectList(await _categoryService.GetAllCategoriesAsync(), "CategoryId", "CategoryName");
             return View();
         }
 
         // POST: Categories/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CategoryId,CategoryName,CategoryDesciption,ParentCategoryId,IsActive")] Category category)
+        public async Task<IActionResult> Create([Bind("CategoryName,CategoryDesciption,ParentCategoryId,IsActive")] Category category)
         {
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Add(category);
-                    await _context.SaveChangesAsync();
-                    ViewData["SuccessMessage"] = "Create category successfully.";
-                    return View(category);
-                }
-                catch (Exception ex)
-                {
-                    ViewData["ErrorMessage"] = "An error occurred while creating the category. Please try again.";
-                    ModelState.AddModelError("", ex.Message);
-                }
+                await _categoryService.AddCategoryAsync(category);
+
+                TempData["SuccessMessage"] = "Category created successfully.";
+                return RedirectToAction(nameof(Index));
             }
-            ViewData["ParentCategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryId", category.ParentCategoryId);
+
+            ViewData["ParentCategoryId"] = new SelectList(await _categoryService.GetAllCategoriesAsync(), "CategoryId", "CategoryName", category.ParentCategoryId);
             return View(category);
         }
 
@@ -84,54 +62,33 @@ namespace FUNewsManagementSystem.Controllers
         public async Task<IActionResult> Edit(short? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var category = await _context.Categories.FindAsync(id);
+            var category = await _categoryService.GetCategoryByIdAsync(id.Value);
             if (category == null)
-            {
                 return NotFound();
-            }
-            ViewData["ParentCategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryId", category.ParentCategoryId);
+
+            ViewData["ParentCategoryId"] = new SelectList(await _categoryService.GetAllCategoriesAsync(), "CategoryId", "CategoryName", category.ParentCategoryId);
             return View(category);
         }
 
         // POST: Categories/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(short id, [Bind("CategoryId,CategoryName,CategoryDesciption,ParentCategoryId,IsActive")] Category category)
         {
             if (id != category.CategoryId)
-            {
                 return NotFound();
-            }
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(category);
-                    ViewData["SuccessMessage"] = "Update category successfully.";
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CategoryExists(category.CategoryId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        ViewData["ErrorMessage"] = "An error occurred while editing the tag. Please try again.";
-                        throw;
-                    }
-                }
-                return View(category);
+                await _categoryService.UpdateCategoryAsync(category);
+
+                TempData["SuccessMessage"] = "Category updated successfully.";
+                return RedirectToAction(nameof(Index));
             }
-            ViewData["ParentCategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryId", category.ParentCategoryId);
+
+            ViewData["ParentCategoryId"] = new SelectList(await _categoryService.GetAllCategoriesAsync(), "CategoryId", "CategoryName", category.ParentCategoryId);
             return View(category);
         }
 
@@ -139,17 +96,11 @@ namespace FUNewsManagementSystem.Controllers
         public async Task<IActionResult> Delete(short? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var category = await _context.Categories
-                .Include(c => c.ParentCategory)
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
+            var category = await _categoryService.GetCategoryByIdAsync(id.Value);
             if (category == null)
-            {
                 return NotFound();
-            }
 
             return View(category);
         }
@@ -159,41 +110,10 @@ namespace FUNewsManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(short id)
         {
-            var category = await _context.Categories
-                .Include(c => c.NewsArticles) // Include related NewsArticles
-                .FirstOrDefaultAsync(c => c.CategoryId == id);
+            await _categoryService.DeleteCategoryAsync(id);
 
-            if (category == null)
-            {
-                return NotFound();
-            }
-
-            // Check if the category has any associated NewsArticles
-            if (category.NewsArticles.Any())
-            {
-                ViewData["ErrorMessage"] = "Cannot delete this category because it is linked to existing news articles.";
-                return View(category);
-            }
-
-            try
-            {
-                _context.Categories.Remove(category);
-                await _context.SaveChangesAsync();
-                ViewData["SuccessMessage"] = "Category deleted successfully.";
-            }
-            catch (Exception ex)
-            {
-                ViewData["ErrorMessage"] = "An error occurred while deleting the category.";
-            }
-
-            return View(category);
-        }
-
-
-        private bool CategoryExists(short id)
-        {
-            return _context.Categories.Any(e => e.CategoryId == id);
+            TempData["SuccessMessage"] = "Category deleted successfully.";
+            return RedirectToAction(nameof(Index));
         }
     }
 }
-

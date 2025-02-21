@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace FUNewsManagementSystem.Models;
+
+namespace FUNewsManagementSystem.DAL.Models;
 
 public partial class FunewsManagementContext : DbContext
 {

@@ -1,4 +1,4 @@
-namespace FUNewsManagementSystem.Models
+namespace FUNewsManagementSystem.DAL.Models
 {
     public class ErrorViewModel
     {
