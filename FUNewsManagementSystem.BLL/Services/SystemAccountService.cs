@@ -23,7 +23,7 @@ namespace FUNewsManagementSystem.BLL.Services
             return await _context.SystemAccounts.ToListAsync();
         }
 
-        public async Task<SystemAccount?> GetAccountByIdAsync(int id)
+        public async Task<SystemAccount?> GetAccountByIdAsync(short id)
         {
             return await _context.SystemAccounts.FindAsync(id);
         }
