@@ -1,5 +1,6 @@
 ﻿using FUNewsManagementSystem.BLL.Interfaces;
 using FUNewsManagementSystem.DAL.Models;
+using FUNewsManagementSystem.DAL.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FUNewsManagementSystem.Controllers
@@ -13,14 +14,27 @@ namespace FUNewsManagementSystem.Controllers
             _tagService = tagService;
         }
 
-        public IActionResult Index(string searchString)
+        [HttpGet("Tags/Index/page/{page:int?}")]
+        public IActionResult Index(string searchString, int page = 1)
         {
-            var tags = string.IsNullOrEmpty(searchString)
-                ? _tagService.GetAllTags()
-                : _tagService.GetAllTags().Where(t => t.TagName.Contains(searchString));
+            var tags = _tagService.GetAllTags();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                tags = tags.Where(t => t.TagName.Contains(searchString, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
 
             ViewData["CurrentFilter"] = searchString;
-            return View(tags);
+
+            // Pagination
+            const int pageSize = 5;
+            int resCount = tags.Count();
+            var pager = new Pager(resCount, page, pageSize);
+            int recSkip = (page - 1) * pageSize;
+            var pagingTags = tags.Skip(recSkip).Take(pager.PageSize).ToList();
+
+            ViewBag.Pager = pager;
+            return View(pagingTags);
         }
 
         public IActionResult Details(int? id)
@@ -44,6 +58,13 @@ namespace FUNewsManagementSystem.Controllers
             {
                 try
                 {
+                    var existsTag = _tagService.GetTagById(tag.TagId);
+                    if (existsTag != null)
+                    {
+                        ViewData["ErrorMessage"] = "Tag has exists in database";
+                        return View();
+                    }
+
                     _tagService.AddTag(tag);
                     ViewData["SuccessMessage"] = "Create tag successfully.";
                     return View(tag);

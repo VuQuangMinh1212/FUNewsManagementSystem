@@ -53,5 +53,14 @@ namespace FUNewsManagementSystem.DAL.Repositories
                 _context.SaveChanges();
             }
         }
+
+        public IEnumerable<Tag> GetAllTagsPaging(int page, int pageSize)
+        {
+            return _context.Tags
+                .OrderBy(t => t.TagId)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+        }
     }
 }

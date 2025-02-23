@@ -1,5 +1,7 @@
 ﻿using FUNewsManagementSystem.BLL.Interfaces;
+using FUNewsManagementSystem.BLL.Services;
 using FUNewsManagementSystem.DAL.Models;
+using FUNewsManagementSystem.DAL.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -15,10 +17,28 @@ namespace FUNewsManagementSystem.Controllers
         }
 
         // GET: Categories
-        public async Task<IActionResult> Index()
+        [HttpGet("Categories/Index/page/{page:int?}")]
+        public async Task<IActionResult> Index(string searchString, int page = 1)
         {
+
             var categories = await _categoryService.GetAllCategoriesAsync();
-            return View(categories);
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                categories = categories.Where(c => c.CategoryName.Contains(searchString, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            ViewData["CurrentFilter"] = searchString;
+
+            //Pagination
+            const int pageSize = 5;
+            int resCount = categories.Count();
+            var pager = new Pager(resCount, page, pageSize);
+            int recSkip = (page - 1) * pageSize;
+            var pagingCategories = categories.Skip(recSkip).Take(pager.PageSize).ToList();
+
+            ViewBag.Pager = pager;
+            return View(pagingCategories);
         }
 
         // GET: Categories/Details/5

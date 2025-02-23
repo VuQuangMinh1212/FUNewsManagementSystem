@@ -1,5 +1,6 @@
 ﻿using FUNewsManagementSystem.BLL.Interfaces;
 using FUNewsManagementSystem.DAL.Models;
+using FUNewsManagementSystem.DAL.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -20,8 +21,8 @@ namespace FUNewsManagementSystem.Controllers
             _categoryService = categoryService;
             _accountService = accountService;
         }
-
-        public async Task<IActionResult> Index(string searchTitle, int? categoryFilter)
+        [HttpGet("NewsArticles/Index/page/{page:int?}")]
+        public async Task<IActionResult> Index(string searchTitle, int? categoryFilter, int page = 1)
         {
             var articles = await _newsArticleService.GetFilteredNewsArticlesAsync(searchTitle, categoryFilter);
             var categories = await _categoryService.GetAllCategoriesAsync();
@@ -30,7 +31,16 @@ namespace FUNewsManagementSystem.Controllers
             ViewData["CurrentTitleFilter"] = searchTitle;
             ViewData["CurrentCategoryFilter"] = categoryFilter;
 
-            return View(articles);
+            //Pagination
+            const int pageSize = 5;
+            int resCount = articles.Count();
+            var pager = new Pager(resCount, page, pageSize);
+            int recSkip = (page - 1) * pageSize;
+            var pagingNewsArticles = articles.Skip(recSkip).Take(pager.PageSize).ToList();
+
+            ViewBag.Pager = pager;
+
+            return View(pagingNewsArticles);
         }
 
         public async Task<IActionResult> Details(string id)
