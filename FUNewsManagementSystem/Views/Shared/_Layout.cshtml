@@ -37,7 +37,19 @@
                             <li class="nav-item">
                                 <a class="nav-link text-light" asp-controller="NewsArticles" asp-action="Index"><i class="fas fa-newspaper"></i> News</a>
                             </li>
-
+                        
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-light" asp-controller="SystemAccounts" asp-action="Logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-light" asp-controller="SystemAccounts" asp-action="Login"><i class="fas fa-sign-in-alt"></i> Login</a>
+                            </li>
+                        }
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item">
@@ -68,6 +80,7 @@
                                     </a>
                                 </li>
                             }
+                        
                         </ul>
                     </div>
                 </div>

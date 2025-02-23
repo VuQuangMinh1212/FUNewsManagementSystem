@@ -1,4 +1,4 @@
-using FUNewsManagementSystem.BLL.Interfaces;
+﻿using FUNewsManagementSystem.BLL.Interfaces;
 using FUNewsManagementSystem.BLL.Services;
 using FUNewsManagementSystem.DAL.Interfaces;
 using FUNewsManagementSystem.DAL.Models;
@@ -66,8 +66,15 @@ app.UseAuthorization();
 
 
 
+/*app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=SystemAccounts}/{action=Login}/{id?}");*/
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=SystemAccounts}/{action=Login}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Nếu không có route nào khớp, tự động chuyển về Home/Index
+app.MapFallbackToController("Index", "Home");
+
 
 app.Run();

@@ -1,4 +1,6 @@
-﻿@{
+﻿@model IEnumerable<FUNewsManagementSystem.DAL.Models.NewsArticle>
+
+@*@{
     ViewData["Title"] = "Home Page";
 }
 
@@ -20,4 +22,38 @@
             </a>
         }
     </div>
+</div>*@
+@{
+    ViewData["Title"] = "Active News";
+    var random = new Random();
+    var defaultImages = new List<string>
+    {
+        "/images/image_1.jpg",
+        "/images/image_2.jpg",
+        "/images/image_3.jpg",
+        "/images/image_4.jpg"
+    };
+}
+
+<div class="container mt-4">
+    <h2>Active News</h2>
+    <div class="row">
+        @foreach (var news in Model)
+        {
+            var imageUrl = Url.Content(defaultImages[random.Next(defaultImages.Count)]);
+
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <img src="@imageUrl" class="card-img-top img-fluid" style="height: 200px; object-fit: cover;" alt="">
+                    <div class="card-body">
+                        <h5 class="card-title text-truncate" style="max-width: 100%;">@news.NewsTitle</h5>
+                        <p class="card-text">@news?.CreatedBy?.AccountName</p>
+                        <p class="card-text">@news.CreatedDate?.ToString("dd/MM/yyyy")</p>
+                        
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
+

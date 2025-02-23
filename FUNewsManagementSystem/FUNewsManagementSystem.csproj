@@ -23,4 +23,8 @@
     <ProjectReference Include="..\FUNewsManagementSystem.DAL\FUNewsManagementSystem.DAL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+
 </Project>
