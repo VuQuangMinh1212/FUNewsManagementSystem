@@ -1,9 +1,6 @@
 ﻿using FUNewsManagementSystem.BLL.Interfaces;
 using FUNewsManagementSystem.DAL.Interfaces;
 using FUNewsManagementSystem.DAL.Models;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace FUNewsManagementSystem.BLL.Services
 {

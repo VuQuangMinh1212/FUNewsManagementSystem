@@ -1,5 +1,4 @@
 ﻿using FUNewsManagementSystem.DAL.Models;
-using System.Collections.Generic;
 
 namespace FUNewsManagementSystem.BLL.Interfaces
 {

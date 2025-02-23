@@ -48,10 +48,12 @@
                 </div>
                 <span asp-validation-for="AccountPassword" class="text-danger"></span>
             </div>
-
+            @{
+                var accountId = User.FindFirst("AccountId")?.Value;
+            }
             <!-- Buttons -->
             <div class="d-flex gap-3 mt-4">
-                <button type="submit" asp-action="Details" class="btn btn-success">
+                <button type="submit" asp-action="Details" asp-route-id="@accountId" class="btn btn-success">
                     <i class="fas fa-save"></i> Save
                 </button>
 

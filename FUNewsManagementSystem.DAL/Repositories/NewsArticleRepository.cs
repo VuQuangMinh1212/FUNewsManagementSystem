@@ -1,11 +1,6 @@
-﻿using FUNewsManagementSystem.DAL.Models;
-using FUNewsManagementSystem.DAL.Interfaces;
+﻿using FUNewsManagementSystem.DAL.Interfaces;
+using FUNewsManagementSystem.DAL.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FUNewsManagementSystem.DAL.Repositories
 {
@@ -104,6 +99,15 @@ namespace FUNewsManagementSystem.DAL.Repositories
                 .Include(n => n.Category)
                 .Where(n => n.CreatedById == staffId)
                 .OrderByDescending(n => n.CreatedDate)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<NewsArticle>> GetLatestNews(int count)
+        {
+            return await _context.NewsArticles
+                .Where(n => n.NewsStatus == true)
+                .OrderByDescending(n => n.CreatedDate)
+                .Take(count)
                 .ToListAsync();
         }
     }

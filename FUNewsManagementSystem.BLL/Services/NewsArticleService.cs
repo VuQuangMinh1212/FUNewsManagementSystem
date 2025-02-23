@@ -1,9 +1,6 @@
 ﻿using FUNewsManagementSystem.BLL.Interfaces;
-using FUNewsManagementSystem.DAL.Models;
 using FUNewsManagementSystem.DAL.Interfaces;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using FUNewsManagementSystem.DAL.Repositories;
+using FUNewsManagementSystem.DAL.Models;
 
 namespace FUNewsManagementSystem.BLL.Services
 {
@@ -54,6 +51,11 @@ namespace FUNewsManagementSystem.BLL.Services
         public async Task<List<NewsArticle>> GetNewsArticlesByStaffIdAsync(short staffId)
         {
             return await _newsArticleRepository.GetNewsArticlesByStaffIdAsync(staffId);
+        }
+
+        public async Task<IEnumerable<NewsArticle>> GetLatestNews(int count)
+        {
+            return await _newsArticleRepository.GetLatestNews(count);
         }
     }
 }

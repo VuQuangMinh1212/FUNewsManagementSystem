@@ -80,7 +80,7 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted text-center py-3">
+    <footer class="border-top footer text-muted text-center py-1">
         <div class="container">
             &copy; @DateTime.Now.Year - FUNewsManagementSystem - <a asp-controller="Home" asp-action="Privacy" class="text-decoration-none">Privacy</a>
         </div>
@@ -92,5 +92,6 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
+    @await RenderSectionAsync("Styles", required: false)
 </body>
 </html>
