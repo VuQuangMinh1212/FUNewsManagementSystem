@@ -138,5 +138,34 @@ namespace FUNewsManagementSystem.DAL.Repositories
                 .OrderByDescending(n => n.CreatedDate)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<NewsArticle>> GetLatestNews(int count)
+        {
+            return await _context.NewsArticles
+                .Where(n => n.NewsStatus == true)
+                .OrderByDescending(n => n.CreatedDate)
+                .Take(count)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<NewsArticle>> GetNewsReportAsync(DateTime? startDate, DateTime? endDate)
+        {
+            var query = _context.NewsArticles.AsQueryable();
+
+            if (startDate.HasValue)
+            {
+                query = query.Where(n => n.CreatedDate >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(n => n.CreatedDate <= endDate.Value);
+            }
+
+            return await query
+                .OrderByDescending(n => n.CreatedDate)
+                .ToListAsync();
+        }
+
     }
 }

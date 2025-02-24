@@ -1,66 +1,112 @@
 ﻿@model FUNewsManagementSystem.DAL.Models.NewsArticle
+@using System.Globalization;
 
 @{
-    ViewData["Title"] = "News Article Details";
+    ViewData["Title"] = Model.NewsTitle;
 }
 
-<h1 class="mb-3"><i class="fas fa-newspaper"></i> News Article Details</h1>
+<div class="container mt-5">
+    <!-- News Title & Headline -->
+    <article class="post-preview">
+        <h1 class="post-title text-primary fw-bold">
+            @Model.NewsTitle
+        </h1>
+        @if (!string.IsNullOrEmpty(Model.Headline))
+        {
+            <h3 class="post-subtitle text-muted">
+                @Model.Headline
+            </h3>
+        }
+        else
+        {
+            <h3 class="post-subtitle text-muted">
+                @Html.DisplayFor(model => model.NewsContent).ToString().Substring(0, 100)... 
+            </h3>
+        }
 
-<div class="card shadow-sm">
-    <div class="card-body">
-        <h4 class="card-title">Article Information</h4>
-        <hr />
-        <dl class="row">
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.NewsTitle)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.NewsTitle)</dd>
+        <!-- Date -->
+        <p class="post-meta text-secondary">
+            Post in:
+            @(Model.ModifiedDate.HasValue ? Model.ModifiedDate.Value.ToString("MMMM dd, yyyy", CultureInfo.InvariantCulture) : "Not Available")
+        </p>
+    </article>
 
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Headline)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Headline)</dd>
+    <hr />
 
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.CreatedDate)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.CreatedDate)</dd>
+    <!-- News Content -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <h4 class="card-title text-primary">Content</h4>
+            <p class="card-text">@Html.DisplayFor(model => model.NewsContent)</p>
+        </div>
+    </div>
 
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.NewsContent)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.NewsContent)</dd>
+    <!-- Additional Info -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <h4 class="card-title text-primary">Details</h4>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <strong>Source:</strong> @Html.DisplayFor(model => model.NewsSource)
+                </li>
+                <li class="list-group-item">
+                    <strong>Status:</strong> 
+                    <span class="badge @(Model.NewsStatus == true ? "bg-success" : "bg-danger")">
+                        @(Model.NewsStatus == true ? "Active" : "Inactive")
+                    </span>
+                </li>
+                <li class="list-group-item">
+                    <strong>Category:</strong> 
+                    @(Model.Category != null ? Model.Category.CategoryName : "None")
+                </li>
+                <li class="list-group-item">
+                    <strong>Last Updated:</strong> @Model.ModifiedDate?.ToString("MMMM dd, yyyy", CultureInfo.InvariantCulture)
+                </li>
+            </ul>
+        </div>
+    </div>
 
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.NewsSource)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.NewsSource)</dd>
-
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.NewsStatus)</dt>
-            <dd class="col-sm-9">
-                <span class="badge @(Model.NewsStatus == true ? "bg-success" : "bg-danger")">
-                    @(Model.NewsStatus == true ? "Active" : "Inactive")
-                </span>
-            </dd>
-
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.UpdatedById)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.UpdatedById)</dd>
-
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.ModifiedDate)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.ModifiedDate)</dd>
-
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Category)</dt>
-            <dd class="col-sm-9">
-                @(Model.Category != null ? Model.Category.CategoryName : "None")
-            </dd>
-
-            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.CreatedBy)</dt>
-            <dd class="col-sm-9">
-                @(Model.CreatedBy != null ? Model.CreatedBy.AccountName : "Unknown")
-            </dd>
-        </dl>
-
-       
-
-        <div class="d-flex gap-3 mt-4">
-             @if(User.IsInRole("Staff")){
+    <!-- Action Buttons -->
+    <div class="d-flex gap-3 mt-4">
+        @if (User.IsInRole("Staff"))
+        {
             <a asp-action="Edit" asp-route-id="@Model?.NewsArticleId" class="btn btn-warning">
                 <i class="fas fa-edit"></i> Edit
             </a>
-             }
-            <a asp-action="Index" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to List
-            </a>
-        </div>
+        }
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
     </div>
 </div>
+
+@section Styles {
+    <style>
+        .post-title {
+            font-size: 2.5rem;
+            line-height: 1.2;
+        }
+
+        .post-subtitle {
+            font-size: 1.5rem;
+            line-height: 1.4;
+        }
+
+        .post-meta {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .card {
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+}

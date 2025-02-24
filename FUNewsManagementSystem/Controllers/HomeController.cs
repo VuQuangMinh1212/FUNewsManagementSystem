@@ -1,3 +1,4 @@
+using FUNewsManagementSystem.BLL.Interfaces;
 using FUNewsManagementSystem.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -7,14 +8,20 @@ namespace FUNewsManagementSystem.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly INewsArticleService _newsArticlesService;
 
-        public HomeController(ILogger<HomeController> logger)
+        // Inject Logger and NewsArticlesService
+        public HomeController(ILogger<HomeController> logger, INewsArticleService newsArticlesService)
         {
             _logger = logger;
+            _newsArticlesService = newsArticlesService;
         }
 
-        public IActionResult Index()
+        // Home Page - Display latest news
+        public async Task<IActionResult> Index()
         {
+            var latestNews = await _newsArticlesService.GetLatestNews(12);
+            ViewBag.LatestNews = latestNews;
             return View();
         }
 

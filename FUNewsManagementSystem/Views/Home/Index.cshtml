@@ -2,22 +2,66 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center mt-5">
-    <h1 class="display-4 fw-bold text-primary">Welcome to FUNews Management System</h1>
-    <p class="lead text-muted">Manage news, categories, and tags efficiently.</p>
+@using System.Globalization;
 
+<div class="text-center mt-3">
+    <h1 class="display-4 fw-bold text-primary">Welcome to FUNews</h1>
     <div class="mt-4 d-flex justify-content-center">
-        @if (User.Identity.IsAuthenticated)
+        @if (!User.Identity.IsAuthenticated)
         {
-            <a asp-controller="SystemAccounts" asp-action="Logout" class="btn btn-outline-danger btn-lg px-4 py-2 mx-2 shadow-sm">
-                <i class="fas fa-sign-out-alt me-2"></i> Logout
-            </a>
-        }
-        else
-        {
-            <a asp-controller="SystemAccounts" asp-action="Login" class="btn btn-outline-primary btn-lg px-4 py-2 mx-2 shadow-sm">
+            <a asp-controller="SystemAccounts" asp-action="Login" class="btn btn-primary btn-lg px-4 py-2 mx-2 shadow-sm">
                 <i class="fas fa-sign-in-alt me-2"></i> Login
             </a>
         }
     </div>
 </div>
+
+<!-- Latest News Section -->
+<div class="container mt-5">
+    <h2 class="text-center mb-4 text-secondary">Latest News</h2>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        @if (ViewBag.LatestNews != null && ViewBag.LatestNews.Count > 0)
+        {
+            @foreach (var news in ViewBag.LatestNews)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0 hover-shadow cursor-pointer"
+                         onclick="window.location.href='@Url.Action("Details", "NewsArticles", new { id = news.NewsArticleId })'">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">@news.NewsTitle</h5>
+                            <p class="card-text text-muted">@news.Headline</p>
+                            <small class="text-muted">Posted on @news.CreatedDate.ToString("MMMM dd, yyyy", CultureInfo.InvariantCulture)</small>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 text-end">
+                            <span class="text-primary" style="cursor: pointer;">
+                                <i class="fas fa-book-open"></i> Read More
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="text-center text-muted">No news articles available at the moment.</p>
+        }
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .hover-shadow:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+}
