@@ -22,6 +22,14 @@
     </div>
 </form>
 
+<!-- Total Count Display -->
+@if (Model.NewsArticles != null && Model.NewsArticles.Any())
+{
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> Total News Articles: <strong>@Model.NewsArticles.Count()</strong>
+    </div>
+}
+
 <!-- Report Table -->
 <table class="table table-bordered table-striped">
     <thead class="table-dark">
