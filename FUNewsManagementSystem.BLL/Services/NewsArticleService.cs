@@ -1,9 +1,6 @@
 ﻿using FUNewsManagementSystem.BLL.Interfaces;
-using FUNewsManagementSystem.DAL.Models;
 using FUNewsManagementSystem.DAL.Interfaces;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using FUNewsManagementSystem.DAL.Repositories;
+using FUNewsManagementSystem.DAL.Models;
 
 namespace FUNewsManagementSystem.BLL.Services
 {
@@ -26,14 +23,14 @@ namespace FUNewsManagementSystem.BLL.Services
             return await _newsArticleRepository.GetByIdAsync(id);
         }
 
-        public async Task AddNewsArticleAsync(NewsArticle article)
+        public async Task AddNewsArticleAsync(NewsArticle article, List<int> tags)
         {
-            await _newsArticleRepository.CreateAsync(article);
+            await _newsArticleRepository.CreateAsync(article, tags);
         }
 
-        public async Task UpdateNewsArticleAsync(NewsArticle article)
+        public async Task UpdateNewsArticleAsync(NewsArticle article,List<int> tags)
         {
-            await _newsArticleRepository.UpdateAsync(article);
+            await _newsArticleRepository.UpdateAsync(article,tags);
         }
 
         public async Task DeleteNewsArticleAsync(string id)

@@ -1,4 +1,4 @@
-﻿@model FUNewsManagementSystem.DAL.Models.NewsArticle
+﻿@model FUNewsManagementSystem.ViewModel.CreateNewArticleViewModel
 
 @{
     ViewData["Title"] = "Create News Article";
@@ -76,9 +76,17 @@
             <div class="form-group">
                 <label asp-for="CategoryId" class="control-label"></label>
                 <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId" required>
-                    <option value="">-- Select a Category --</option>
+                    <option>-- Select a Category --</option>
                 </select>
                 <span asp-validation-for="CategoryId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="TagsId" class="control-label"></label>
+                <select class="form-control" asp-for="TagsId" asp-items="ViewBag.Tags" required>
+                    <option>-- Select a Tags --</option>
+                </select>
+                <span asp-validation-for="TagsId" class="text-danger"></span>
             </div>
 
             <div class="form-group form-check">
@@ -86,17 +94,17 @@
                 <label asp-for="NewsStatus" class="form-check-label">Published</label>
             </div>
 
-            <div class="form-group">
-                <label asp-for="UpdatedById" class="control-label"></label>
-                <input asp-for="UpdatedById" class="form-control" placeholder="Enter ID of updater" />
-                <span asp-validation-for="UpdatedById" class="text-danger"></span>
-            </div>
+            @* <div class="form-group"> *@
+            @*     <label asp-for="UpdatedById" class="control-label"></label> *@
+            @*     <input asp-for="UpdatedById" class="form-control" placeholder="Enter ID of updater" /> *@
+            @*     <span asp-validation-for="UpdatedById" class="text-danger"></span> *@
+            @* </div> *@
 
-            <div class="form-group">
-                <label asp-for="ModifiedDate" class="control-label"></label>
-                <input asp-for="ModifiedDate" type="datetime-local" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" required />
-                <span asp-validation-for="ModifiedDate" class="text-danger"></span>
-            </div>
+            @* <div class="form-group"> *@
+            @*     <label asp-for="ModifiedDate" class="control-label"></label> *@
+            @*     <input asp-for="ModifiedDate" type="datetime-local" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" required /> *@
+            @*     <span asp-validation-for="ModifiedDate" class="text-danger"></span> *@
+            @* </div> *@
 
             <div class="form-group mt-4">
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Create</button>

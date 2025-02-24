@@ -1,7 +1,6 @@
 ﻿using FUNewsManagementSystem.BLL.Interfaces;
-using FUNewsManagementSystem.BLL.Services;
 using FUNewsManagementSystem.DAL.Models;
-using FUNewsManagementSystem.DAL.ViewModel;
+using FUNewsManagementSystem.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 

@@ -1,11 +1,9 @@
 ﻿using FUNewsManagementSystem.BLL.Interfaces;
 using FUNewsManagementSystem.DAL.Models;
-using FUNewsManagementSystem.DAL.ViewModel;
+using FUNewsManagementSystem.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 
 namespace FUNewsManagementSystem.Controllers
 {
@@ -14,12 +12,14 @@ namespace FUNewsManagementSystem.Controllers
         private readonly INewsArticleService _newsArticleService;
         private readonly ICategoryService _categoryService;
         private readonly ISystemAccountService _accountService;
+        private readonly ITagService _tagService;
 
-        public NewsArticlesController(INewsArticleService newsArticleService, ICategoryService categoryService, ISystemAccountService accountService)
+        public NewsArticlesController(ITagService tagsService, INewsArticleService newsArticleService, ICategoryService categoryService, ISystemAccountService accountService)
         {
             _newsArticleService = newsArticleService;
             _categoryService = categoryService;
             _accountService = accountService;
+            _tagService = tagsService;
         }
         [HttpGet("NewsArticles/Index/page/{page:int?}")]
         public async Task<IActionResult> Index(string searchTitle, int? categoryFilter, int page = 1)
@@ -30,6 +30,8 @@ namespace FUNewsManagementSystem.Controllers
             ViewData["Categories"] = categories;
             ViewData["CurrentTitleFilter"] = searchTitle;
             ViewData["CurrentCategoryFilter"] = categoryFilter;
+
+
 
             //Pagination
             const int pageSize = 5;
@@ -56,23 +58,38 @@ namespace FUNewsManagementSystem.Controllers
         {
             ViewData["CategoryId"] = new SelectList(await _categoryService.GetAllCategoriesAsync(), "CategoryId", "CategoryName");
             ViewData["CreatedById"] = new SelectList(await _accountService.GetAllAccountsAsync(), "AccountId", "AccountName");
-
+            ViewData["Tags"] = new SelectList(_tagService.GetAllTags(), "TagId", "TagName");
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Staff")]
-        public async Task<IActionResult> Create(NewsArticle newsArticle)
+        public async Task<IActionResult> Create(CreateNewArticleViewModel newsArticleViewModel)
         {
             if (!ModelState.IsValid)
             {
-                ViewData["CategoryId"] = new SelectList(await _categoryService.GetAllCategoriesAsync(), "CategoryId", "CategoryName", newsArticle.CategoryId);
-                ViewData["CreatedById"] = new SelectList(await _accountService.GetAllAccountsAsync(), "AccountId", "AccountName", newsArticle.CreatedById);
-                return View(newsArticle);
+                ViewData["CategoryId"] = new SelectList(await _categoryService.GetAllCategoriesAsync(), "CategoryId", "CategoryName", newsArticleViewModel.CategoryId);
+                ViewData["CreatedById"] = new SelectList(await _accountService.GetAllAccountsAsync(), "AccountId", "AccountName", newsArticleViewModel.CreatedById);
+                ViewData["Tags"] = new SelectList(_tagService.GetAllTags(), "TagId", "TagName");
+
+                return View(newsArticleViewModel);
             }
 
-            await _newsArticleService.AddNewsArticleAsync(newsArticle); // No bool return
+            var newsArticle = new NewsArticle
+            {
+                CategoryId = newsArticleViewModel.CategoryId,
+                CreatedById = newsArticleViewModel.CreatedById,
+                CreatedDate = newsArticleViewModel.CreatedDate,
+                Headline = newsArticleViewModel.Headline,
+                NewsArticleId = newsArticleViewModel.NewsArticleId,
+                NewsContent = newsArticleViewModel.NewsContent,
+                NewsSource = newsArticleViewModel.NewsSource,
+                NewsStatus = newsArticleViewModel.NewsStatus,
+                NewsTitle = newsArticleViewModel.NewsTitle
+            };
+
+            await _newsArticleService.AddNewsArticleAsync(newsArticle, newsArticleViewModel.TagsId);
 
             TempData["SuccessMessage"] = "NewsArticle created successfully!";
             return RedirectToAction(nameof(Index));
@@ -85,23 +102,50 @@ namespace FUNewsManagementSystem.Controllers
             if (newsArticle == null) return NotFound();
 
             ViewData["CategoryId"] = new SelectList(await _categoryService.GetAllCategoriesAsync(), "CategoryId", "CategoryName", newsArticle.CategoryId);
-            return View(newsArticle);
+            ViewData["Tags"] = new SelectList(_tagService.GetAllTags(), "TagId", "TagName");
+
+            var createArticleViewModel = new CreateNewArticleViewModel
+            {
+                CategoryId = newsArticle.CategoryId,
+                CreatedDate = newsArticle.CreatedDate,
+                CreatedById = newsArticle.CreatedById,
+                Headline = newsArticle.Headline,
+                NewsArticleId = newsArticle.NewsArticleId,
+                NewsContent = newsArticle.NewsContent,
+                NewsSource = newsArticle.NewsSource,
+                NewsStatus = newsArticle.NewsStatus,
+                NewsTitle = newsArticle.NewsTitle
+            };
+            return View(createArticleViewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Staff")]
-        public async Task<IActionResult> Edit(string id, NewsArticle newsArticle)
+        public async Task<IActionResult> Edit(string id, CreateNewArticleViewModel editArticle)
         {
-            if (id != newsArticle.NewsArticleId) return BadRequest();
+            if (id != editArticle.NewsArticleId) return BadRequest();
 
             if (!ModelState.IsValid)
             {
-                ViewData["CategoryId"] = new SelectList(await _categoryService.GetAllCategoriesAsync(), "CategoryId", "CategoryName", newsArticle.CategoryId);
-                return View(newsArticle);
+                ViewData["CategoryId"] = new SelectList(await _categoryService.GetAllCategoriesAsync(), "CategoryId", "CategoryName", editArticle.CategoryId);
+                return View(editArticle);
             }
 
-            await _newsArticleService.UpdateNewsArticleAsync(newsArticle); // No bool return
+            var updateArticle = new NewsArticle
+            {
+                CategoryId = editArticle.CategoryId,
+                CreatedById = editArticle.CreatedById,
+                CreatedDate = editArticle.CreatedDate,
+                Headline = editArticle.Headline,
+                NewsArticleId = editArticle.NewsArticleId,
+                NewsContent = editArticle.NewsContent,
+                NewsSource = editArticle.NewsSource,
+                NewsStatus = editArticle.NewsStatus,
+                NewsTitle = editArticle.NewsTitle
+            };
+
+            await _newsArticleService.UpdateNewsArticleAsync(updateArticle, editArticle.TagsId); // No bool return
 
             TempData["SuccessMessage"] = "News article updated successfully!";
             return RedirectToAction(nameof(Index));

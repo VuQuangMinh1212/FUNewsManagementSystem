@@ -1,6 +1,6 @@
 ﻿using FUNewsManagementSystem.BLL.Interfaces;
 using FUNewsManagementSystem.DAL.Models;
-using FUNewsManagementSystem.DAL.ViewModel;
+using FUNewsManagementSystem.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FUNewsManagementSystem.Controllers

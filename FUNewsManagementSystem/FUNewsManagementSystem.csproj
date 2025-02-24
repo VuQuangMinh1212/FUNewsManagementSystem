@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FUNewsManagementSystem.BLL\FUNewsManagementSystem.BLL.csproj" />
-    <ProjectReference Include="..\FUNewsManagementSystem.DAL\FUNewsManagementSystem.DAL.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,11 +1,6 @@
-﻿using FUNewsManagementSystem.DAL.Models;
-using FUNewsManagementSystem.DAL.Interfaces;
+﻿using FUNewsManagementSystem.DAL.Interfaces;
+using FUNewsManagementSystem.DAL.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FUNewsManagementSystem.DAL.Repositories
 {
@@ -23,7 +18,8 @@ namespace FUNewsManagementSystem.DAL.Repositories
         {
             return await _context.NewsArticles
                 .Include(n => n.Category)
-                .Include(n => n.Tags)
+                .Include(n => n.NewsTags)
+                .ThenInclude(n => n.Tag)
                 .ToListAsync();
         }
 
@@ -33,7 +29,8 @@ namespace FUNewsManagementSystem.DAL.Repositories
             return await _context.NewsArticles
                 .Where(n => n.NewsStatus == true)
                 .Include(n => n.Category)
-                .Include(n => n.Tags)
+                .Include(n => n.NewsTags)
+                .ThenInclude(n => n.Tag)
                 .ToListAsync();
         }
 
@@ -44,21 +41,56 @@ namespace FUNewsManagementSystem.DAL.Repositories
         {
             return await _context.NewsArticles
                 .Include(n => n.Category)
-                .Include(n => n.Tags)
+                .Include(n => n.NewsTags)
+                .ThenInclude(n => n.Tag)
                 .FirstOrDefaultAsync(n => n.NewsArticleId == id);
         }
 
 
-        public async Task CreateAsync(NewsArticle newsArticle)
+        public async Task CreateAsync(NewsArticle newsArticle, List<int> tags)
         {
             _context.NewsArticles.Add(newsArticle);
+            if (tags != null && tags.Any())
+            {
+                var newsTags = tags.Select(tagId => new NewsTag
+                {
+                    NewsArticleId = newsArticle.NewsArticleId,
+                    TagId = tagId
+                }).ToList();
+                _context.NewsTag.AddRange(newsTags);
+            }
             await _context.SaveChangesAsync();
         }
 
 
-        public async Task UpdateAsync(NewsArticle newsArticle)
+        public async Task UpdateAsync(NewsArticle updatedArticle, List<int> tags)
         {
-            _context.NewsArticles.Update(newsArticle);
+            var existingArticle = await _context.NewsArticles
+        .Include(n => n.NewsTags)
+        .FirstOrDefaultAsync(n => n.NewsArticleId == updatedArticle.NewsArticleId);
+
+            if (existingArticle == null)
+                throw new Exception("NewsArticle not found.");
+
+            _context.Entry(existingArticle).CurrentValues.SetValues(updatedArticle);
+
+            if (tags != null)
+            {
+                var tagsToRemove = existingArticle.NewsTags.Where(nt => !tags.Contains(nt.TagId)).ToList();
+                _context.NewsTag.RemoveRange(tagsToRemove);
+
+                foreach (var tagId in tags)
+                {
+                    if (!existingArticle.NewsTags.Any(nt => nt.TagId == tagId))
+                    {
+                        existingArticle.NewsTags.Add(new NewsTag
+                        {
+                            NewsArticleId = existingArticle.NewsArticleId,
+                            TagId = tagId
+                        });
+                    }
+                }
+            }
             await _context.SaveChangesAsync();
         }
 

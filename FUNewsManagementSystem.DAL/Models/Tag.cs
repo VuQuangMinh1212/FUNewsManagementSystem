@@ -1,4 +1,7 @@
-﻿namespace FUNewsManagementSystem.DAL.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace FUNewsManagementSystem.DAL.Models;
 
 public partial class Tag
 {
@@ -8,5 +11,6 @@ public partial class Tag
 
     public string? Note { get; set; }
 
-    public virtual ICollection<NewsArticle> NewsArticles { get; set; } = new List<NewsArticle>();
+    public virtual ICollection<NewsTag> NewsTags { get; set; } = new List<NewsTag>();
+
 }

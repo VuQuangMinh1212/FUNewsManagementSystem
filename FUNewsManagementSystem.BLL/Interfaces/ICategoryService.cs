@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FUNewsManagementSystem.DAL.Models;
+﻿using FUNewsManagementSystem.DAL.Models;
 
 
 namespace FUNewsManagementSystem.BLL.Interfaces

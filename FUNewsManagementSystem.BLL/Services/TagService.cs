@@ -1,7 +1,6 @@
 ﻿using FUNewsManagementSystem.BLL.Interfaces;
 using FUNewsManagementSystem.DAL.Interfaces;
 using FUNewsManagementSystem.DAL.Models;
-using System.Collections.Generic;
 
 namespace FUNewsManagementSystem.BLL.Services
 {

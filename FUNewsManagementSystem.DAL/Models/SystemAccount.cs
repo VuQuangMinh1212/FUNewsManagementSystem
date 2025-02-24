@@ -1,4 +1,7 @@
-﻿namespace FUNewsManagementSystem.DAL.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace FUNewsManagementSystem.DAL.Models;
 
 public partial class SystemAccount
 {

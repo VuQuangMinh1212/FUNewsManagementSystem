@@ -1,9 +1,4 @@
 ﻿using FUNewsManagementSystem.DAL.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FUNewsManagementSystem.BLL.Interfaces
 {
@@ -11,8 +6,8 @@ namespace FUNewsManagementSystem.BLL.Interfaces
     {
         Task<IEnumerable<NewsArticle>> GetAllNewsArticlesAsync();
         Task<NewsArticle?> GetNewsArticleByIdAsync(string id);
-        Task AddNewsArticleAsync(NewsArticle article);
-        Task UpdateNewsArticleAsync(NewsArticle article);
+        Task AddNewsArticleAsync(NewsArticle article,List<int> tags);
+        Task UpdateNewsArticleAsync(NewsArticle article, List<int> tags);
         Task DeleteNewsArticleAsync(string id);
         Task<IEnumerable<NewsArticle>> GetFilteredNewsArticlesAsync(string searchTitle, int? categoryFilter);
 

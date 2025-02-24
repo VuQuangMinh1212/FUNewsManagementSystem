@@ -1,4 +1,7 @@
-﻿namespace FUNewsManagementSystem.DAL.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace FUNewsManagementSystem.DAL.Models;
 
 public partial class NewsArticle
 {
@@ -16,7 +19,7 @@ public partial class NewsArticle
 
     public short? CategoryId { get; set; }
 
-    public bool NewsStatus { get; set; } = true;
+    public bool NewsStatus { get; set; }
 
     public short? CreatedById { get; set; }
 
@@ -28,5 +31,5 @@ public partial class NewsArticle
 
     public virtual SystemAccount? CreatedBy { get; set; }
 
-    public virtual ICollection<Tag> Tags { get; set; } = new List<Tag>();
+    public virtual ICollection<NewsTag> NewsTags { get; set; } = new List<NewsTag>();
 }

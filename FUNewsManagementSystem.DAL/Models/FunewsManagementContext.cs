@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace FUNewsManagementSystem.DAL.Models;
 
@@ -21,6 +22,7 @@ public partial class FunewsManagementContext : DbContext
     public virtual DbSet<SystemAccount> SystemAccounts { get; set; }
 
     public virtual DbSet<Tag> Tags { get; set; }
+    public virtual DbSet<NewsTag> NewsTag { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -65,26 +67,41 @@ public partial class FunewsManagementContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_NewsArticle_SystemAccount");
 
-            entity.HasMany(d => d.Tags).WithMany(p => p.NewsArticles)
-                .UsingEntity<Dictionary<string, object>>(
-                    "NewsTag",
-                    r => r.HasOne<Tag>().WithMany()
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_NewsTag_Tag"),
-                    l => l.HasOne<NewsArticle>().WithMany()
-                        .HasForeignKey("NewsArticleId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_NewsTag_NewsArticle"),
-                    j =>
-                    {
-                        j.HasKey("NewsArticleId", "TagId");
-                        j.ToTable("NewsTag");
-                        j.IndexerProperty<string>("NewsArticleId")
-                            .HasMaxLength(20)
-                            .HasColumnName("NewsArticleID");
-                        j.IndexerProperty<int>("TagId").HasColumnName("TagID");
-                    });
+            //entity.HasMany(d => d.Tags).WithMany(p => p.NewsArticles)
+            //    .UsingEntity<Dictionary<string, object>>(
+            //        "NewsTag",
+            //        r => r.HasOne<Tag>().WithMany()
+            //            .HasForeignKey("TagId")
+            //            .OnDelete(DeleteBehavior.ClientSetNull)
+            //            .HasConstraintName("FK_NewsTag_Tag"),
+            //        l => l.HasOne<NewsArticle>().WithMany()
+            //            .HasForeignKey("NewsArticleId")
+            //            .OnDelete(DeleteBehavior.ClientSetNull)
+            //            .HasConstraintName("FK_NewsTag_NewsArticle"),
+            //        j =>
+            //        {
+            //            j.HasKey("NewsArticleId", "TagId");
+            //            j.ToTable("NewsTag");
+            //            j.IndexerProperty<string>("NewsArticleId")
+            //                .HasMaxLength(20)
+            //                .HasColumnName("NewsArticleID");
+            //            j.IndexerProperty<int>("TagId").HasColumnName("TagID");
+            //        });
+        });
+
+        modelBuilder.Entity<NewsTag>(entity =>
+        {
+            entity.HasKey(nt => new { nt.NewsArticleId, nt.TagId });
+
+            entity.HasOne(nt => nt.NewsArticle)
+                .WithMany(na => na.NewsTags)
+                .HasForeignKey(nt => nt.NewsArticleId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(nt => nt.Tag)
+                .WithMany(t => t.NewsTags)
+                .HasForeignKey(nt => nt.TagId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<SystemAccount>(entity =>
