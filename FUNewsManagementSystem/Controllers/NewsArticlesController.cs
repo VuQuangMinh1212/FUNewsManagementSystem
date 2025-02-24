@@ -1,4 +1,5 @@
 ﻿using FUNewsManagementSystem.BLL.Interfaces;
+using FUNewsManagementSystem.BLL.ViewModels;
 using FUNewsManagementSystem.DAL.Models;
 using FUNewsManagementSystem.DAL.ViewModel;
 using Microsoft.AspNetCore.Authorization;
@@ -140,6 +141,18 @@ namespace FUNewsManagementSystem.Controllers
             var staffNews = await _newsArticleService.GetNewsArticlesByStaffIdAsync(userId);
 
             return View(staffNews);
+        }
+
+        public async Task<IActionResult> Report(DateTime? startDate, DateTime? endDate)
+        {
+            var viewModel = new NewsReportViewModel
+            {
+                StartDate = startDate,
+                EndDate = endDate,
+                NewsArticles = await _newsArticleService.GetNewsReportAsync(startDate, endDate)
+            };
+
+            return View(viewModel);
         }
     }
 }

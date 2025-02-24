@@ -1,85 +1,30 @@
-﻿@model IEnumerable<FUNewsManagementSystem.DAL.Models.NewsArticle>
+﻿@model FUNewsManagementSystem.BLL.ViewModels.NewsReportViewModel
 
 @{
     ViewData["Title"] = "News Report";
 }
-<style>
-    form {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 20px;
-    }
 
-    label {
-        font-weight: bold;
-    }
+<h2 class="text-center mb-4 text-primary">News Report</h2>
 
-    input[type="date"] {
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        font-size: 14px;
-    }
-
-   
-    button {
-        padding: 8px 15px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 14px;
-    }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-    
-    .table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-    }
-
-        .table th, .table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .table th {
-            background-color: #212529;
-            color: white;
-            font-weight: bold;
-        }
-
-        .table tr:hover {
-            background-color: #f1f1f1;
-        }
-
-</style>
-
-<h2>News Report</h2>
-
-<form method="get">
-    <label>Start Date:</label>
-    <input type="date" name="startDate" value="@Context.Request.Query["startDate"]" />
-
-    <label>End Date:</label>
-    <input type="date" name="endDate" value="@Context.Request.Query["endDate"]" />
-
-    <button type="submit">Filter</button>
+<!-- Filter Form -->
+<form method="get" class="row g-3 mb-4 justify-content-center">
+    <div class="col-md-3">
+        <label class="form-label">Start Date:</label>
+        <input type="date" name="startDate" class="form-control" value="@Model.StartDate?.ToString("yyyy-MM-dd")" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">End Date:</label>
+        <input type="date" name="endDate" class="form-control" value="@Model.EndDate?.ToString("yyyy-MM-dd")" />
+    </div>
+    <div class="col-md-3 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary me-2"><i class="fas fa-filter"></i> View</button>
+        <a asp-action="Report" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> Reset</a>
+    </div>
 </form>
 
-<table class="table">
-    <thead>
+<!-- Report Table -->
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
         <tr>
             <th>News Title</th>
             <th>Created Date</th>
@@ -88,14 +33,46 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @if (Model.NewsArticles != null && Model.NewsArticles.Any())
+        {
+            @foreach (var item in Model.NewsArticles)
+            {
+                <tr>
+                    <td>@item.NewsTitle</td>
+                    <td>@(item.CreatedDate?.ToString("MMMM dd, yyyy") ?? "N/A")</td>
+                    <td>@(item.Category?.CategoryName ?? "Uncategorized")</td>
+                    <td>@(item.CreatedBy?.AccountName ?? "Unknown")</td>
+                </tr>
+            }
+        }
+        else
         {
             <tr>
-                <td>@item.NewsTitle</td>
-                <td>@item.CreatedDate</td>
-                <td>@item.Category?.CategoryName</td>
-                <td>@item.CreatedBy?.AccountName</td>
+                <td colspan="4" class="text-center text-muted">No news articles found for the selected period.</td>
             </tr>
         }
     </tbody>
 </table>
+
+@section Styles {
+    <style>
+        .table {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+            .table th, .table td {
+                vertical-align: middle;
+            }
+
+        .table-hover tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+}

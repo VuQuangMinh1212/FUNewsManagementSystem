@@ -57,5 +57,11 @@ namespace FUNewsManagementSystem.BLL.Services
         {
             return await _newsArticleRepository.GetLatestNews(count);
         }
+
+        public async Task<IEnumerable<NewsArticle>> GetNewsReportAsync(DateTime? startDate, DateTime? endDate)
+        {
+            return await _newsArticleRepository.GetNewsReportAsync(startDate, endDate);
+        }
+
     }
 }

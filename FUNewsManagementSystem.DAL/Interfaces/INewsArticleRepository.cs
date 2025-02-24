@@ -14,6 +14,7 @@ namespace FUNewsManagementSystem.DAL.Interfaces
         Task<bool> HasNewsInCategoryAsync(int categoryId);
         Task<List<NewsArticle>> GetNewsArticlesByStaffIdAsync(short staffId);
         Task<IEnumerable<NewsArticle>> GetLatestNews(int count);
+        Task<IEnumerable<NewsArticle>> GetNewsReportAsync(DateTime? startDate, DateTime? endDate);
     }
 }
 
