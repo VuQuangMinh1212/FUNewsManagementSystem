@@ -1,4 +1,4 @@
-﻿@model FUNewsManagementSystem.DAL.Models.NewsArticle
+﻿@model FUNewsManagementSystem.ViewModel.NewsArticleViewModel
 @using System.Globalization;
 
 @{
@@ -57,7 +57,7 @@
                 </li>
                 <li class="list-group-item">
                     <strong>Category:</strong> 
-                    @(Model.Category != null ? Model.Category.CategoryName : "None")
+                    @Model.CategoryName
                 </li>
                 <li class="list-group-item">
                     <strong>Last Updated:</strong> @Model.ModifiedDate?.ToString("MMMM dd, yyyy", CultureInfo.InvariantCulture)
