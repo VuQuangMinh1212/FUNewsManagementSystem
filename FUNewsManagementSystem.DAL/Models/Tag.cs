@@ -4,7 +4,6 @@ namespace FUNewsManagementSystem.DAL.Models;
 
 public partial class Tag
 {
-    [Display(Name = "Tag Name")]
     public int TagId { get; set; }
 
     [Display(Name = "Tag Name")]
